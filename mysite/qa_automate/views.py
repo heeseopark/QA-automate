@@ -1,16 +1,14 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from .models import QuestionEx
 
 # Create your views here.
-def index(request):
-    return HttpResponse("자동 답변 사이트입니다.")
 
-def page_question_check(request, book_id, page_number, question_number):
-    book = get_object_or_404(Book, id=book_id)
-    try:
-        pq_check = PageQuestionCheck.objects.get(book=book, page_number=page_number, question_number=question_number)
-        pq_check.count += 1
-        pq_check.save()
-    except PageQuestionCheck.DoesNotExist:
-        PageQuestionCheck.objects.create(book=book, page_number=page_number, question_number=question_number)
+def index(request):
+    question_list = QuestionEx.objects.order_by('-create_date')
+    context = {'question_list': question_list}
+    return render(request, 'qa_automate/question_list.html', context)
+
+def detail(request, question_id):
+    question = get_object_or_404(QuestionEx, pk=question_id)
+    context = {'question': question}
+    return render(request, 'pybo/question_detail.html', context)
