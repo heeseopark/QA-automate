@@ -6,9 +6,12 @@ from .models import QuestionEx
 def index(request):
     question_list = QuestionEx.objects.order_by('-create_date')
     context = {'question_list': question_list}
-    return render(request, 'qa_automate/question_list.html', context)
+    return render(request, 'qa_automate/questionex_list.html', context)
 
 def detail(request, question_id):
     question = get_object_or_404(QuestionEx, pk=question_id)
     context = {'question': question}
-    return render(request, 'pybo/question_detail.html', context)
+    return render(request, 'pybo/questionex_detail.html', context)
+
+def init(request):
+    return render(request, 'qa_automate/init.html')
