@@ -15,3 +15,7 @@ def detail(request, question_id):
 
 def init(request):
     return render(request, 'qa_automate/init.html')
+
+
+def calender(request):
+    return render(request, 'qa_automate/datepicker.html')
