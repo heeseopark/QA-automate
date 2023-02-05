@@ -12,10 +12,10 @@ class Question(models.Model):
     question_number = models.PositiveIntegerField(default=1)
     count = models.PositiveIntegerField(default=1)
 
-class SibalSoSangDate(DateCheck):
+class SibalSooSangDate(DateCheck):
     pass
 
-class SibalSoSangQuestion(Question):
+class SibalSooSangQuestion(Question):
     pass
 
 class QuestionEx(models.Model):
