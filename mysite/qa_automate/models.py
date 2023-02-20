@@ -11,6 +11,7 @@ class Question(models.Model):
     page_number = models.PositiveIntegerField(default=1)
     question_number = models.PositiveIntegerField(default=1)
     count = models.PositiveIntegerField(default=1)
+    date = models.DateField()
 
 class SibalSooSangDate(DateCheck):
     pass
