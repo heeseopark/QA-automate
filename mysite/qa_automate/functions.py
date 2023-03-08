@@ -10,10 +10,15 @@ def isInBlackList(name, id):
         return True
     except BlacklistTest.DoesNotExist:
         return False
+    
+def divideNameId(input_string):
+    name = input_string[:3]
+    id = input_string[input_string.index("(")+1:input_string.index(")")]
+    return (name, id)
 
 
-def isInQuestionList():
-    pass
+
+def getQuestionAttribute():
 
 
 import time
