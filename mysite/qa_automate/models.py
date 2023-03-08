@@ -10,7 +10,7 @@ class DateCheckTest(models.Model):
     book = models.ForeignKey(BookTest, on_delete=models.CASCADE)
     date = models.DateField()
 
-class BookQuestionTest(models.Model):
+class QuestionListTest(models.Model):
     question_id = models.IntegerField(primary_key=True)
     book = models.ForeignKey(BookTest, on_delete=models.CASCADE)
     question_number = models.IntegerField()
