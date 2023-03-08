@@ -25,3 +25,4 @@ class BlacklistTest(models.Model):
     student_name = models.CharField(max_length=200)
     student_id = models.CharField(max_length=20)
 
+    
