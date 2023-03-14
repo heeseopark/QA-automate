@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question List</title>
+</head>
+<body>
+    <h1>Select Book</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="book">Book:</label>
+        <select name="book" id="book">
+            {% for book in books %}
+                <option value="{{ book.title }}">{{ book.title }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Search">
+    </form>
+
+    <h1>Questions</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="total">Total:</label>
+        <select name="total" id="total">
+            <option value="all">All</option>
+            <option value="theme">By Theme</option>
+            <option value="example">By Example</option>
+        </select>
+        <input type="submit" value="Filter">
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Question ID</th>
+                <th>Book</th>
+                <th>Student Name</th>
+                <th>Student ID</th>
+                <th>Page</th>
+                <th>Number</th>
+                <th>Theme</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+                <tr>
+                    <td>{{ question.question_id }}</td>
+                    <td>{{ question.book.title }}</td>
+                    <td>{{ question.student_name_and_id }}</td>
+                    <td>{{ question.page }}</td>
+                    <td>{{ question.number }}</td>
+                    <td>{{ question.theme }}</td>
+                    <td>{{ question.example }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No questions found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

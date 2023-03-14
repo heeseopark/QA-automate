@@ -1,31 +1,23 @@
-from .models import BlacklistTest, BookTest, QuestionListTest
+from .models import BlacklistTest, BookListTest, QuestionListTest
 import time
 from selenium import webdriver
 
-def isInBlackList(name, id):
+def isInBlackList(text):
     """
     Checks whether the given name and id exist in the BlacklistTest table.
     Returns True if the student is in the blacklist, False otherwise.
     """
     try:
-        blacklist = BlacklistTest.objects.get(student_name=name, student_id=id)
+        blacklist = BlacklistTest.objects.get(student_name_and_id=text)
         return True
     except BlacklistTest.DoesNotExist:
         return False
     
-def divideNameId(input_string):
-    name = input_string[:3]
-    id = input_string[input_string.index("(")+1:input_string.index(")")]
-    return (name, id)
 
 
-
-def goToWaitingPage():
-    # set up the Chrome driver
-    driver = webdriver.Chrome()
-
+def goToWaitingPage(driver):
     # navigate to the website
-    driver.get('https://www.example.asdfasdfcom/')
+    driver.get('https://www.tzonemegastudy.net/')
 
     # find and click the first element
     first_element = driver.find_element_by_xpath('/html/body/form/div/div[1]/label[2]/input')
@@ -62,10 +54,7 @@ def goToWaitingPage():
     seventh_element.click()
 
 
-def goToTotalPage():
-    # set up the Chrome driver
-    driver = webdriver.Chrome()
-
+def goToTotalPage(driver):
     # navigate to the website
     driver.get('https://www.example.com/')
 
@@ -137,21 +126,24 @@ def getQuestionAttribute(browser):
         browser.switch_to.default_content()
         # Go to previous page
         browser.back()
+        return
 
     # Get question ID
     question_id = int(browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
 
+    # Get Student name and ID
+    student_name_and_id = browser.find_element_by_xpath("/html/body/div[1]/table/tbody/tr[4]/td[1]/a").text
+
     # Get book object
     book_title = browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[2]/td[1]').text
-    book = BookTest.objects.get(title=book_title)
+    book = BookListTest.objects.get(title=book_title)
 
     # Save question attributes to database
     question = QuestionListTest(
         question_id=question_id,
         book=book,
         question_number=1,  # TODO: Replace with actual question number
-        student_name="John Doe",  # TODO: Replace with actual student name
-        student_id="1234",  # TODO: Replace with actual student ID
+        student_name_and_id=student_name_and_id,  # TODO: Replace with actual student name
         page=1,  # TODO: Replace with actual page number
         number=1,  # TODO: Replace with actual question number
         theme=1,  # TODO: Replace with actual theme number
