@@ -1,6 +1,7 @@
 from .models import BlacklistTest, BookListTest, QuestionListTest
 import time
 from selenium import webdriver
+import re
 
 def isInBlackList(text):
     """
@@ -135,19 +136,51 @@ def getQuestionAttribute(browser):
     book_title = browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[2]/td[1]').text
     book = BookListTest.objects.get(title=book_title)
 
+    # Get Page Number and Question Number
+    text = browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+    page_number = getPageNum(text)
+    question_number = getQuestionNum(text)
+    theme_number = getThemeNum(text)
+
     # Save question attributes to database
     question = QuestionListTest(
+        
         question_id=question_id,
         book=book,
-        question_number=1,  # TODO: Replace with actual question number
         student_name_and_id=student_name_and_id,  # TODO: Replace with actual student name
-        page=1,  # TODO: Replace with actual page number
-        number=1,  # TODO: Replace with actual question number
-        theme=1,  # TODO: Replace with actual theme number
-        example=1  # TODO: Replace with actual example number
+        page=page_number,  # TODO: Replace with actual page number
+        number=question_number,  # TODO: Replace with actual question number
+        theme=theme_number,  # TODO: Replace with actual theme number
+
     )
     question.save()
 
     # Switch back to default content and go to previous page
     browser.switch_to.default_content()
     browser.back()
+
+def getPageNum(text):
+    pattern = r'(?:\b\d+\s*)?(?:p(?:g)?\.?\s{0,2})*(\d+)(?:[페페이지쪽]|\s*$)'
+    match = re.search(pattern, text)
+    if match:
+        return int(match.group(1))
+    else:
+        return None
+
+
+def getQuestionNum(text):
+    pattern = r'(?:^|[^0-9])(\d{1,2})\s*[번]'
+    match = re.search(pattern, text)
+    if match:
+        return int(match.group(1))
+    else:
+        return None
+
+def getThemeNum(text):
+    pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme)'
+    match = re.search(pattern, text)
+    if match:
+        return int(match.group(1))
+    else:
+        return None
+

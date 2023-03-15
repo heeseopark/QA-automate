@@ -13,12 +13,10 @@ class DateCheckTest(models.Model):
 class QuestionListTest(models.Model):
     question_id = models.IntegerField(primary_key=True)
     book = models.ForeignKey(BookListTest, on_delete=models.CASCADE)
-    question_number = models.IntegerField()
     student_name_and_id = models.CharField(max_length=200)
     page = models.IntegerField()
     number = models.IntegerField()
     theme = models.IntegerField()
-    example = models.IntegerField()
 
 class BlacklistTest(models.Model):
     student_name_and_id = models.CharField(max_length=200)
