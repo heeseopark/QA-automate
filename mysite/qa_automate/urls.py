@@ -6,4 +6,5 @@ app_name = 'qa_automate'
 urlpatterns = [
     path('', views.init),
     path('calender/', views.calender),
+    path('booklist/', views.add_book_list),
 ]

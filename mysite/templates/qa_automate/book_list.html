@@ -13,23 +13,23 @@
     </form>
 
     <h1>Book List</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in books %}
+    {% if books %}
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ book.title }}</td>
+                    <th>Title</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td>No books found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No books found.</p>
+    {% endif %}
 </body>
 </html>
