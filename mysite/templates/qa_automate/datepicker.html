@@ -8,9 +8,24 @@
   <body>
     <div class='rap'>
       <div class="header">
-         <div class="btn prevDay"></div>
+        <div class="btn prevDay"></div>
         <h2 class='dateTitle'></h2>
         <div class="btn nextDay"></div>
+      </div>
+
+      <div class="booklist">
+        <form method="POST">
+          {% csrf_token %}
+          <label for="booktitle">Select a book:</label>
+          <select id="booktitle" name="booktitle">
+            <option value="">--Select a book--</option>
+            {% for book in books %}
+              <option value="{{ book.title }}">{{ book.title }}</option>
+            {% endfor %}
+          </select>
+
+          <button type="submit" id="submit">Submit</button>
+        </form>
       </div>
       
       <div class="grid dateHead">
@@ -23,8 +38,6 @@
         <div>토</div>
       </div>
   
-      <div class="grid dateBoard"></div>
-
       <div class="grid dateBoard"></div>
 
       <form method="POST">
@@ -63,8 +76,12 @@
         }
 
         // 이번달 날짜 표시하기
-        for (let i = 1; i <= lastDay; i++) {    
-          htmlDummy += `<div>${i}</div>`;
+        for (let i = 1; i <= lastDay; i++) {
+          let dateBoxClass = "dateBox";
+          if (bookTitle && bookTitle !== "" && checkDate(bookTitle, currentYear, currentMonth, i)) {
+            dateBoxClass += " searched";
+          }
+          htmlDummy += `<div class="${dateBoxClass}">${i}</div>`;
         }
 
         // 다음달 날짜 표시하기
