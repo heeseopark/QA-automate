@@ -6,6 +6,7 @@ from .models import BlacklistTest
 from .models import DateCheckTest
 from .functions import *
 import datetime
+from selenium import webdriver
 
 # Create your views here.
 
@@ -37,7 +38,7 @@ def add_book_list(request):
                 date_check = DateCheckTest(book=book, date=date_obj)
                 date_check.save()
             current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        goToWaitingPage()
+        goToWaitingPage(browser)
         return HttpResponseRedirect('/qa_automate/calender/')
     return render(request, 'qa_automate/book_list.html', {'books': books})
 
