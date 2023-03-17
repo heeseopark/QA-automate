@@ -20,7 +20,7 @@ def calender(request):
         return render(request, 'qa_automate/datepicker.html', {'book_title': book_title})
     return render(request, 'qa_automate/calender.html', {'books': books})
 
-def add_book_list(request):
+def add_book_list(request, browser):
     books = BookListTest.objects.all()
     if request.method == 'POST':
         title = request.POST.get('title')
