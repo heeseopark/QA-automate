@@ -6,7 +6,6 @@ from .models import BlacklistTest
 from .models import DateCheckTest
 from .functions import *
 import datetime
-from selenium import webdriver
 
 # Create your views here.
 
