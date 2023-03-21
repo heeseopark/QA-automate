@@ -2,6 +2,7 @@ from .models import BlacklistTest, BookListTest, QuestionListTest
 import time
 from selenium import webdriver
 import re
+from selenium.webdriver.common.by import By
 
 def isInBlackList(text):
     """
@@ -14,80 +15,97 @@ def isInBlackList(text):
     except BlacklistTest.DoesNotExist:
         return False
     
-def goToWaitingPage(browser):
+def goToWaitingPage():
+
+    # find driver
+    browser = webdriver.Chrome('.\chromedriver\chromedriver.exe')
+
     # navigate to the website
-    browser.get('https://www.tzonemegastudy.net/')
+    browser.get('https://tzone.megastudy.net/')
 
     # find and click the first element
-    first_element = browser.find_element_by_xpath('/html/body/form/div/div[1]/label[2]/input')
+    first_element = browser.find_element(By.XPATH, '/html/body/form/div/div[1]/label[2]/input')
     first_element.click()
 
     # find and input text into the second element
-    second_element = browser.find_element_by_id('id')
+    second_element = browser.find_element(By.ID, 'id')
     second_element.send_keys('heeseopark')
 
+    browser.implicitly_wait(10)
+
     # find and click the third element
-    third_element = browser.find_element_by_id('sp_smsct')
+    third_element = browser.find_element(By.ID, 'sp_smsct')
     third_element.click()
 
+    browser.implicitly_wait(10)
+
     # find and input text into the fourth element
-    fourth_element = browser.find_element_by_id('second_tec_cd')
+    fourth_element = browser.find_element(By.ID, 'passwd')
     fourth_element.send_keys('heeseo1099')
 
+    browser.implicitly_wait(10)
+
     # find and click the fifth element
-    fifth_element = browser.find_element_by_id('sp_login')
+    fifth_element = browser.find_element(By.ID, 'sp_login')
     fifth_element.click()
 
-    # wait for 3 seconds
-    time.sleep(3)
+    browser.implicitly_wait(10)
 
     # find and click the sixth element
-    sixth_element = browser.find_element_by_id('a594')
+    sixth_element = browser.find_element(By.ID, 'a594')
     sixth_element.click()
 
-    # wait for 3 seconds
-    time.sleep(3)
+    browser.implicitly_wait(10)
 
     # find and click the seventh element
-    seventh_element = browser.find_element_by_id('aa4233')
+    seventh_element = browser.find_element(By.ID, 'aa4233')
     seventh_element.click()
 
-def goToTotalPage(browser):
+def goToTotalPage():
+    # find driver
+    browser = webdriver.Chrome('.\chromedriver\chromedriver.exe')
+
     # navigate to the website
-    browser.get('https://www.example.com/')
+    browser.get('https://tzone.megastudy.net/')
 
     # find and click the first element
-    first_element = browser.find_element_by_xpath('/html/body/form/div/div[1]/label[2]/input')
+    first_element = browser.find_element(By.XPATH, '/html/body/form/div/div[1]/label[2]/input')
     first_element.click()
 
+    browser.implicitly_wait(10)
+
     # find and input text into the second element
-    second_element = browser.find_element_by_id('id')
+    second_element = browser.find_element(By.ID, 'id')
     second_element.send_keys('heeseopark')
 
+    browser.implicitly_wait(10)
+
     # find and click the third element
-    third_element = browser.find_element_by_id('sp_smsct')
+    third_element = browser.find_element(By.ID, 'sp_smsct')
     third_element.click()
 
+    browser.implicitly_wait(10)
+
     # find and input text into the fourth element
-    fourth_element = browser.find_element_by_id('second_tec_cd')
+    fourth_element = browser.find_element(By.ID, 'passwd')
     fourth_element.send_keys('heeseo1099')
 
+    browser.implicitly_wait(10)
+
     # find and click the fifth element
-    fifth_element = browser.find_element_by_id('sp_login')
+    fifth_element = browser.find_element(By.ID, 'sp_login')
     fifth_element.click()
 
-    # wait for 3 seconds
-    time.sleep(3)
+    browser.implicitly_wait(10)
 
     # find and click the sixth element
-    sixth_element = browser.find_element_by_id('a594')
+    sixth_element = browser.find_element(By.ID, 'a594')
     sixth_element.click()
 
-    # wait for 3 seconds
-    time.sleep(3)
+    browser.implicitly_wait(10)
 
     # find and click the seventh element
-    seventh_element = browser.find_element_by_id('aa4231')
+    seventh_element = browser.find_element(By.ID, 'aa4231')
     seventh_element.click()
 
 def paging(browser):
@@ -116,28 +134,28 @@ def paging(browser):
 
 def getQuestionAttribute(browser):
     # Switch to iframe
-    iframe = browser.find_element_by_tag_name("iframe")
+    iframe = browser.find_element(By.TAG_NAME,"iframe")
     browser.switch_to.frame(iframe)
 
     # Check if we need to go to previous page
-    if browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[4]/td[3]').text == 'N':
+    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text == 'N':
         browser.switch_to.default_content()
         # Go to previous page
         browser.back()
         return
 
     # Get question ID
-    question_id = int(browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
+    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
 
     # Get Student name and ID
-    student_name_and_id = browser.find_element_by_xpath("/html/body/div[1]/table/tbody/tr[4]/td[1]/a").text
+    student_name_and_id = browser.find_element(By.XPATH, "/html/body/div[1]/table/tbody/tr[4]/td[1]/a").text
 
     # Get book object
-    book_title = browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[2]/td[1]').text
+    book_title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
     book = BookListTest.objects.get(title=book_title)
 
     # Get Page Number and Question Number
-    text = browser.find_element_by_xpath('/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+    text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
     page_number = getPageNum(text)
     question_number = getQuestionNum(text)
     theme_number = getThemeNum(text)

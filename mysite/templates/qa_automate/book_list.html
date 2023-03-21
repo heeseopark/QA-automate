@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Book List</title>
+    <title>교제 목록</title>
 </head>
 <body>
-    <h1>Add Book</h1>
+    <h1>책 추가하기</h1>
     <form method="POST">
         {% csrf_token %}
-        <label for="title">Title:</label>
+        <label for="title">교재명:</label>
         <input type="text" name="title" id="title">
-        <input type="submit" value="Add Book">
+        <input type="submit" value="책 추가하기">
     </form>
 
-    <h1>Book List</h1>
+    <h1>교재 목록</h1>
     {% if books %}
         <table>
             <thead>
                 <tr>
-                    <th>Title</th>
+                    <th>교재 제목</th>
                 </tr>
             </thead>
             <tbody>
                 {% for book in books %}
                     <tr>
                         <td>{{ book.title }}</td>
+                        <td><button><a href="/qa_automate/calender/">달력으로 가기</a></button></td>
                     </tr>
                 {% endfor %}
             </tbody>
