@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from .models import BookListTest
 from .models import BlacklistTest
 from .models import DateCheckTest
-from .functions import isInBlackList, goToWaitingPage
+from .functions import isInBlackList, goToWaitingPage, inputDateAndUpdateTable, goToTotalPage
 import datetime
 
 # Create your views here.
@@ -27,6 +27,7 @@ def calender(request, book_title):
                 date_check = DateCheckTest(book=book, date=date_obj)
                 date_check.save()
             current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        inputDateAndUpdateTable(str(startdate), str(enddate), str(book_title))
         return HttpResponseRedirect(reverse('qa_automate:calender', args=[book_title]))
     return render(request, 'qa_automate/calender.html', {'book_title': book_title, 'dates': dates})
 
@@ -62,5 +63,5 @@ def search_date(request):
         return HttpResponseRedirect('/qa_automate/calender/')
 
 def test(request):
-    goToWaitingPage()
+    inputDateAndUpdateTable('2022-03-01','2022-03-05', '수학의 시작, 시발점 - 수학l')
     return render(request)

@@ -56,7 +56,7 @@
         }
 
         for (let i = 1; i <= lastDay; i++) {    
-          htmlDummy += `<div>${i}</div>`;
+          htmlDummy += `<div class="date">${i}</div>`;
         }
 
         for (let i = limitDay; i < nextDay; i++) {
@@ -81,6 +81,10 @@
       document.querySelector(`.nextDay`).onclick = () => {
       makeCalendar(new Date(date.setMonth(date.getMonth() + 1)));
       }
+
+      //조사 여부 입히기
+
+
     </script>
   </body>
 </html>

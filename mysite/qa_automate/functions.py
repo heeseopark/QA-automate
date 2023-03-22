@@ -3,6 +3,10 @@ import time
 from selenium import webdriver
 import re
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 
 def isInBlackList(text):
     """
@@ -18,7 +22,10 @@ def isInBlackList(text):
 def goToWaitingPage():
 
     # find driver
-    browser = webdriver.Chrome('.\chromedriver\chromedriver.exe')
+    service = Service('.\chromedriver\chromedriver.exe')
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    browser = webdriver.Chrome(service=service, options=options)
 
     # navigate to the website
     browser.get('https://tzone.megastudy.net/')
@@ -62,8 +69,12 @@ def goToWaitingPage():
     seventh_element.click()
 
 def goToTotalPage():
+    
     # find driver
-    browser = webdriver.Chrome('.\chromedriver\chromedriver.exe')
+    service = Service('.\chromedriver\chromedriver.exe')
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    browser = webdriver.Chrome(service=service, options=options)
 
     # navigate to the website
     browser.get('https://tzone.megastudy.net/')
@@ -108,7 +119,7 @@ def goToTotalPage():
     seventh_element = browser.find_element(By.ID, 'aa4231')
     seventh_element.click()
 
-def paging(browser):
+def paging(browser, function):
     # Define a function to check if a JavaScript function exists on the page
     def isExecutable(function_name):
         script = f"return typeof {function_name} === 'function';"
@@ -127,7 +138,7 @@ def paging(browser):
         browser.execute_script(f"javascript:{function_name}")
 
         # Do something with the current page
-        getQuestionAttribute(browser)
+        function
 
         current_page += 1
 
@@ -201,4 +212,46 @@ def getThemeNum(text):
         return int(match.group(1))
     else:
         return None
+
+def inputDateAndUpdateTable(start_text, end_text, title_text):
+
+    goToTotalPage()
+
+    time.sleep(3)
+
+    # Switch to iframe   
+    service = Service('.\chromedriver\chromedriver.exe')
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    browser = webdriver.Chrome(service=service, options=options)
+   
+    # Wait for the iframe element to become available
+    wait = WebDriverWait(browser, 10)
+    iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+
+    # Switch to the iframe element
+    browser.switch_to.frame(iframe)
+    browser.implicitly_wait(10)
+
+    #select book title
+    select = Select(browser.find_element(By.ID, 'sel_chr_cd'))
+    browser.implicitly_wait(10)
+
+    select.select_by_value(title_text)
+    browser.implicitly_wait(10)
+
+    browser.switch_to.frame(iframe)
+
+    browser.find_element(By.ID, 'searchSdt').send_keys(start_text)
+    browser.implicitly_wait(10)   
+
+    browser.find_element(By.ID, 'searchEdt').send_keys(end_text)
+    browser.implicitly_wait(10)
+
+    browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
+    browser.implicitly_wait(10)
+
+    paging(browser, None)
+
+
 
