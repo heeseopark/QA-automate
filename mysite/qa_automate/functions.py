@@ -68,6 +68,8 @@ def goToWaitingPage():
     seventh_element = browser.find_element(By.ID, 'aa4233')
     seventh_element.click()
 
+    return
+
 def goToTotalPage():
     
     # find driver

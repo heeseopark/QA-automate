@@ -56,6 +56,9 @@ def goToTotalPage():
     # find and click the seventh element
     seventh_element = browser.find_element(By.ID, 'aa4231')
     seventh_element.click()
+
+    return
+
 def inputDateAndUpdateTable(start_text, end_text, title_text):
 
     goToTotalPage()
@@ -93,5 +96,7 @@ def inputDateAndUpdateTable(start_text, end_text, title_text):
 
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
+
+    return
 
 inputDateAndUpdateTable('2022-03-01','2022-03-05', '수학의 시작, 시발점 - 수학l')
