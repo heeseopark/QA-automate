@@ -6,9 +6,10 @@ app_name = 'qa_automate'
 urlpatterns = [
     path('', views.init),
     path('calender/', views.calender),
-    path('booklist/', views.add_book_list),
+    path('booklist/', views.searchQuestion),
     path('blacklist/', views.blacklist),
-    path('search/', views.search_date),
+    path('search/', views.searchDate),
     path('test/', views.test),
+    path('faqlist/', views.faqList),
 ]
 

@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from .models import BookListTest
 from .models import BlacklistTest
 from .models import DateCheckTest
-from .functions import isInBlackList, goToWaitingPage
+from .functions import *
 import datetime
 
 # Create your views here.
@@ -16,10 +16,10 @@ def calender(request):
     books = BookListTest.objects.all()
     if request.method == 'POST':
         book_title = request.POST.get('book_title')
-        return render(request, 'qa_automate/datepicker.html', {'book_title': book_title})
-    return render(request, 'qa_automate/datepicker.html', {'books': books})
+        return render(request, 'qa_automate/calender.html', {'book_title': book_title})
+    return render(request, 'qa_automate/calender.html', {'books': books})
 
-def add_book_list(request):
+def searchQuestion(request):
     books = BookListTest.objects.all()
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -50,7 +50,7 @@ def blacklist(request):
         return HttpResponseRedirect('/qa_automate/blacklist/')
     return render(request, 'qa_automate/blacklist.html', {'elements': elements})
 
-def search_date(request):
+def searchDate(request):
     if request.method == 'POST':
         book_title = request.POST.get('book_title')
         selected_date = request.POST.get('selected_date')
@@ -63,6 +63,9 @@ def search_date(request):
         return render(request, 'qa_automate/datepicker.html', {'book_title': book_title, 'selected_date': selected_date, 'searched': searched})
     else:
         return HttpResponseRedirect('/qa_automate/calender/')
+
+def faqList(request):
+    return render(request, 'qa_automate/faqlist.html')
 
 def test(request):
     goToWaitingPage()
