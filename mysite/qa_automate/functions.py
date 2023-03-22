@@ -1,4 +1,4 @@
-from .models import BlacklistTest, BookListTest, QuestionListTest
+from .models import BlacklistTest, BookListTest, FaqListTest
 import time
 from selenium import webdriver
 import re
@@ -161,7 +161,7 @@ def getQuestionAttribute(browser):
     theme_number = getThemeNum(text)
 
     # Save question attributes to database
-    question = QuestionListTest(
+    question = FaqListTest(
         
         question_id=question_id,
         book=book,

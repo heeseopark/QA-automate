@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>교제 목록</title>
+    <title>교재 목록</title>
 </head>
 <body>
     <h1>책 추가하기</h1>
@@ -24,13 +24,14 @@
                 {% for book in books %}
                     <tr>
                         <td>{{ book.title }}</td>
-                        <td><button><a href="/qa_automate/calender/">달력으로 가기</a></button></td>
+                        <td><button><a href="{% url 'qa_automate:calender' book_title=book.title %}">달력으로 가기</a></button></td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>No books found.</p>
+        <p>책이 없습니다</p>
     {% endif %}
+    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
 </body>
 </html>

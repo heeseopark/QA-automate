@@ -1,5 +1,4 @@
 from django.db import models
-from datetime import date
 
 # Create your models here.
 
@@ -17,6 +16,16 @@ class QuestionListTest(models.Model):
     page = models.IntegerField()
     number = models.IntegerField()
     theme = models.IntegerField()
+    #  img = models.ImageField
+    class Meta:
+        abstract = True
+
+class FaqListTest(QuestionListTest):
+    count = models.IntegerField(default=1)
+    keyword = models.CharField(max_length=200)    
+
+class EstimatedAnswerTest(QuestionListTest):
+    answer = models.CharField(max_length=400)
 
 class BlacklistTest(models.Model):
     student_name_and_id = models.CharField(max_length=200)

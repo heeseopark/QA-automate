@@ -1,0 +1,14 @@
+<div class="booklist">
+<form method="POST">
+  {% csrf_token %}
+  <label for="booktitle">Select a book:</label>
+  <select id="booktitle" name="booktitle">
+    <option value="">--Select a book--</option>
+    {% for book in books %}
+      <option value="{{ book.title }}">{{ book.title }}</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit" id="submit">Submit</button>
+</form>
+</div>

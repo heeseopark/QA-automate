@@ -51,21 +51,12 @@
 
         let htmlDummy = '';
 
-        const bookTitle = "{{ book_title }}";
-
         for (let i = 0; i < firstDay; i++) {
           htmlDummy += `<div class="noColor"></div>`;
         }
 
-        for (let i = 1; i <= lastDay; i++) {
-          const dateString = `${currentYear}-${currentMonth.toISOString().padStart(2, '0')}-${i.toISOString().padStart(2, '0')}`;
-          const dateObj = new Date(dateString);
-          const dateExists = "{{ DateCheckTest.objects.filter(book_title=bookTitle, date=dateObj).exists() }}";
-          if (dateExists === 'True') {
-            htmlDummy += `<div class="yesColor">조사함</div>`;
-          } else {
-            htmlDummy += `<div class="noColor">조사해야함</div>`;
-          }
+        for (let i = 1; i <= lastDay; i++) {    
+          htmlDummy += `<div>${i}</div>`;
         }
 
         for (let i = limitDay; i < nextDay; i++) {

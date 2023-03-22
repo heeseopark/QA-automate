@@ -12,22 +12,12 @@ import datetime
 def init(request):
     return render(request, 'qa_automate/init.html')
 
-def calender(request):
-    books = BookListTest.objects.all()
+def calender(request, book_title):
+    book = BookListTest.objects.get(title=book_title)
+    dates = DateCheckTest.objects.filter(book=book)
     if request.method == 'POST':
-        book_title = request.POST.get('book_title')
-        return render(request, 'qa_automate/calender.html', {'book_title': book_title})
-    return render(request, 'qa_automate/calender.html', {'books': books})
-
-def searchQuestion(request):
-    books = BookListTest.objects.all()
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        book = BookListTest(title=title)
-        book.save()
         startdate = request.POST.get('startdate')
         enddate = request.POST.get('enddate')
-        book = BookListTest.objects.get(title=title)
         current_date = startdate
         while current_date <= enddate:
             date_obj = datetime.datetime.strptime(current_date, '%Y-%m-%d').date()
@@ -37,8 +27,15 @@ def searchQuestion(request):
                 date_check = DateCheckTest(book=book, date=date_obj)
                 date_check.save()
             current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        goToWaitingPage()
-        return HttpResponseRedirect('/qa_automate/calender/')
+        return HttpResponseRedirect(reverse('qa_automate:calender', args=[book_title]))
+    return render(request, 'qa_automate/calender.html', {'book_title': book_title, 'dates': dates})
+
+def booklist(request):
+    books = BookListTest.objects.all().order_by('title')
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        book = BookListTest(title=title)
+        book.save()
     return render(request, 'qa_automate/book_list.html', {'books': books})
 
 def blacklist(request):

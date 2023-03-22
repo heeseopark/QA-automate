@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Blacklist</title>
+    <title>답변 금지 학생 목록</title>
   </head>
   <body>
-    <h1>Blacklist</h1>
-    <ul>
-      {% for element in elements %}
-        <li>{{ element.student_name }} ({{ element.student_id }})</li>
-      {% endfor %}
-    </ul>
+    <h1>답변 금지 학생 목록</h1>
     <form method="post">
       {% csrf_token %}
-      <label for="student_name">Student Name:</label>
-      <input type="text" id="student_name" name="student_name" required>
-      <label for="student_id">Student ID:</label>
-      <input type="text" id="student_id" name="student_id" required>
-      <button type="submit">Add Element</button>
+      <label for="student_name">학생 이름,ID:</label>
+      <input type="text" id="student_name_and_id" name="student_name_and_id" required>
+
+      <button type="submit">학생 추가하기</button>
     </form>
+    <ul>
+      {% for element in elements %}
+        <li>{{ element.student_name_and_id }}</li>
+      {% endfor %}
+    </ul>
+    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+
   </body>
 </html>
