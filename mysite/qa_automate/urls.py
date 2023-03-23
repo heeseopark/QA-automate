@@ -10,5 +10,7 @@ urlpatterns = [
     path('blacklist/', views.blacklist),
     path('search/', views.search_date),
     path('test/', views.test),
+    path('faqlist/', views.faqlist, name='faq_list'),
+    path('estimated_answer/<str:book_title>/<int:page>/<int:theme>/<int:number>/', views.estimatedanswer, name='estimated_answer'),
 ]
 

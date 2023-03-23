@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>예상 답변 작성</title>
+</head>
+<body>
+	<table>
+		<thead>
+			<tr>
+				<th>책 제목</th>
+				<th>페이지</th>
+				<th>문제 번호</th>
+				<th>Theme 번호</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>{{ question.book.title }}</td>
+				<td>{{ question.page }}</td>
+				<td>{{ question.number }}</td>
+				<td>{{ question.theme }}</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<textarea name="answer" id="answer" rows="20" cols="50">
+안녕하세요 조교 희서입니다.
+
+
+
+도움이 되셨길 바랍니다:)</textarea>
+	<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>
+</body>
+</html>

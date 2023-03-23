@@ -1,4 +1,4 @@
-from .models import BlacklistTest, BookListTest, FaqListTest
+from .models import BlacklistTest, BookListTest, FaqAndEstimatedAnswerTest
 import time
 from selenium import webdriver
 import re
@@ -7,6 +7,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 
 def isInBlackList(text):
     """
@@ -68,14 +69,14 @@ def goToWaitingPage():
     seventh_element = browser.find_element(By.ID, 'aa4233')
     seventh_element.click()
 
-    return
 
 def goToTotalPage():
-    
+    global browser, service, options
     # find driver
     service = Service('.\chromedriver\chromedriver.exe')
-    options = webdriver.ChromeOptions()
+    options = Options()
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    options.add_experimental_option('detach', True)
     browser = webdriver.Chrome(service=service, options=options)
 
     # navigate to the website
@@ -120,6 +121,7 @@ def goToTotalPage():
     # find and click the seventh element
     seventh_element = browser.find_element(By.ID, 'aa4231')
     seventh_element.click()
+    time.sleep(3)
 
 def paging(browser, function):
     # Define a function to check if a JavaScript function exists on the page
@@ -174,7 +176,7 @@ def getQuestionAttribute(browser):
     theme_number = getThemeNum(text)
 
     # Save question attributes to database
-    question = FaqListTest(
+    question = FaqAndEstimatedAnswerTest(
         
         question_id=question_id,
         book=book,
@@ -220,15 +222,9 @@ def inputDateAndUpdateTable(start_text, end_text, title_text):
     goToTotalPage()
 
     time.sleep(3)
-
-    # Switch to iframe   
-    service = Service('.\chromedriver\chromedriver.exe')
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    browser = webdriver.Chrome(service=service, options=options)
    
     # Wait for the iframe element to become available
-    wait = WebDriverWait(browser, 10)
+    wait = WebDriverWait(browser, 3)
     iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
 
     # Switch to the iframe element
@@ -239,21 +235,16 @@ def inputDateAndUpdateTable(start_text, end_text, title_text):
     select = Select(browser.find_element(By.ID, 'sel_chr_cd'))
     browser.implicitly_wait(10)
 
-    select.select_by_value(title_text)
+    select.select_by_visible_text(title_text)
     browser.implicitly_wait(10)
 
-    browser.switch_to.frame(iframe)
-
+    browser.find_element(By.ID, 'searchSdt').clear()
     browser.find_element(By.ID, 'searchSdt').send_keys(start_text)
     browser.implicitly_wait(10)   
 
+    browser.find_element(By.ID, 'searchEdt').clear()
     browser.find_element(By.ID, 'searchEdt').send_keys(end_text)
     browser.implicitly_wait(10)
 
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
-
-    paging(browser, None)
-
-
-

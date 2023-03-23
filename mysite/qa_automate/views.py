@@ -1,9 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.http import HttpResponseRedirect
-from .models import BookListTest
-from .models import BlacklistTest
-from .models import DateCheckTest
+from django.urls import reverse
+from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest
 from .functions import isInBlackList, goToWaitingPage, inputDateAndUpdateTable, goToTotalPage
 import datetime
 
@@ -62,6 +61,25 @@ def search_date(request):
     else:
         return HttpResponseRedirect('/qa_automate/calender/')
 
+def faqlist(request):
+    books = FaqAndEstimatedAnswerTest.objects.values_list('book__title', flat=True).distinct()
+    selected_book = request.GET.get('book')
+    if selected_book:
+        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='', book__title=selected_book)
+        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='', book__title=selected_book)
+    else:
+        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='')
+        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='')
+    context = {
+        'unanswerable_questions': unanswerable_questions,
+        'answerable_questions': answerable_questions,
+        'books': books,
+    }
+    return render(request, 'qa_automate/faqlist.html', context)
+
+
+def estimatedanswer(request):
+    return render(request, 'qa_automate/estimatedanswer.html')
+
 def test(request):
-    inputDateAndUpdateTable('2022-03-01','2022-03-05', '수학의 시작, 시발점 - 수학l')
-    return render(request)
+    return render(request, 'qa_automate/estimatedanswer.html')
