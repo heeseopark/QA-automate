@@ -123,7 +123,7 @@ def goToTotalPage():
     seventh_element.click()
     time.sleep(3)
 
-def paging(browser, function):
+def paging(function):
     # Define a function to check if a JavaScript function exists on the page
     def isExecutable(function_name):
         script = f"return typeof {function_name} === 'function';"
@@ -249,11 +249,7 @@ def updateFaqTable(start_text, end_text, title_text):
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
 
-    goingThroughTotalPage(getAndSaveFaqAtrributes)
-
- 
-
-
+    paging(goingThroughTotalPage(getAndSaveFaqAtrributes))
 
 def goingThroughTotalPage(function):
     # Switch to iframe
@@ -264,7 +260,7 @@ def goingThroughTotalPage(function):
 
     while True:
         # Check if the current element is clickable
-        current_element = browser.find_element(By.XPATH, f'/html/body/div[2]/div[{current_element_number}]')
+        current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
         try:
             current_element.click()
         except:
@@ -274,7 +270,7 @@ def goingThroughTotalPage(function):
         function
 
         # Move to the next element
-        if browser.find_element(By.XPATH, f'/html/body/div[2]/div[{current_element_number + 1}]/div[2]').text == 'done':
+        if browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[9]').text == '완료':
             current_element_number += 2
         else:
             current_element_number += 1
@@ -290,7 +286,7 @@ def goingThroughWaitingPage(function):
 
     while True:
         # Check if the current element is clickable
-        current_element = browser.find_element(By.XPATH, f'/html/body/div[2]/div[{current_element_number}]')
+        current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
         try:
             current_element.click()
         except:
