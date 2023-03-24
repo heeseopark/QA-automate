@@ -217,7 +217,7 @@ def getThemeNum(text):
     else:
         return None
 
-def inputDateAndUpdateTable(start_text, end_text, title_text):
+def updateFaqTable(start_text, end_text, title_text):
 
     goToTotalPage()
 
@@ -248,6 +248,12 @@ def inputDateAndUpdateTable(start_text, end_text, title_text):
 
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
+
+    goingThroughTotalPage(getAndSaveFaqAtrributes)
+
+ 
+
+
 
 def goingThroughTotalPage(function):
     # Switch to iframe
@@ -298,8 +304,7 @@ def goingThroughWaitingPage(function):
     
     browser.switch_to.default_content()
 
-
-def updateFaqTable():
+def getAndSaveFaqAtrributes():
     # Get book title
     book_title = browser.find_element(By.ID, 'booktitle').text
     

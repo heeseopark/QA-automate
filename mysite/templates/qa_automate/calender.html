@@ -28,13 +28,13 @@
 
       <form method="POST">
         {% csrf_token %}
-        <label for="startdate">Start Date:</label>
+        <label for="startdate">조사 시작 날짜:</label>
         <input type="date" id="startdate" name="startdate">
 
-        <label for="enddate">End Date:</label>
+        <label for="enddate">조사 끝 날짜:</label>
         <input type="date" id="enddate" name="enddate">
 
-        <button type="submit" id="search">Search</button>
+        <button type="submit" id="search">조사하기</button>
       </form>
     </div>
 
@@ -61,16 +61,19 @@
           let month = currentMonth.toString().padStart(2, '0');
           let date = i.toString().padStart(2, '0');
           let id = `${currentYear}-${month}-${date}`;
-          
-          htmlDummy += `<div id='${id}'>${i}</div>`;
+
+          let searchedDiv = '';
+
+          {% for date in dates %}
+            {% if date.date == id %}
+              searchedDiv = "<div class='searched'>조사함</div>";
+            {% endif %}
+          {% endfor %}
+
+          htmlDummy += `<div id='${id}'>${i}${searchedDiv}</div>`;
         }
 
-        // Select all divs with class 'dateString' and add ids
-        document.querySelectorAll('.dateString').forEach(element => {
-          let date = element.textContent.padStart(2, '0');
-          let id = `${currentYear}-${currentMonth}-${date}`;
-          element.setAttribute('id', id);
-        });
+
 
 
 
@@ -97,7 +100,7 @@
       makeCalendar(new Date(date.setMonth(date.getMonth() + 1)));
       }
 
-      //조사 여부 입히기
+
 
 
     </script>
