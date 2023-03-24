@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'datepicker.css' %}">
   </head>
   <body>
+    <h1>책 제목: {{book_title}}</h1>
     <div class='rap'>
       <div class="header">
         <div class="btn prevDay"></div>
@@ -55,9 +56,23 @@
           htmlDummy += `<div class="noColor"></div>`;
         }
 
-        for (let i = 1; i <= lastDay; i++) {    
-          htmlDummy += `<div class="date">${i}</div>`;
+        for (let i = 1; i <= lastDay; i++) {
+          // Add padding zeros to month and date
+          let month = currentMonth.toString().padStart(2, '0');
+          let date = i.toString().padStart(2, '0');
+          let id = `${currentYear}-${month}-${date}`;
+          
+          htmlDummy += `<div id='${id}'>${i}</div>`;
         }
+
+        // Select all divs with class 'dateString' and add ids
+        document.querySelectorAll('.dateString').forEach(element => {
+          let date = element.textContent.padStart(2, '0');
+          let id = `${currentYear}-${currentMonth}-${date}`;
+          element.setAttribute('id', id);
+        });
+
+
 
         for (let i = limitDay; i < nextDay; i++) {
           htmlDummy += `<div class="noColor"></div>`;

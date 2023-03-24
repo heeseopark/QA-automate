@@ -248,3 +248,78 @@ def inputDateAndUpdateTable(start_text, end_text, title_text):
 
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
+
+def goingThroughTotalPage(function):
+    # Switch to iframe
+    iframe = browser.find_element(By.TAG_NAME, "iframe")
+    browser.switch_to.frame(iframe)
+
+    current_element_number = 1
+
+    while True:
+        # Check if the current element is clickable
+        current_element = browser.find_element(By.XPATH, f'/html/body/div[2]/div[{current_element_number}]')
+        try:
+            current_element.click()
+        except:
+            break
+
+        # Do something with the current element
+        function
+
+        # Move to the next element
+        if browser.find_element(By.XPATH, f'/html/body/div[2]/div[{current_element_number + 1}]/div[2]').text == 'done':
+            current_element_number += 2
+        else:
+            current_element_number += 1
+    
+    browser.switch_to.default_content()
+
+def goingThroughWaitingPage(function):
+    # Switch to iframe
+    iframe = browser.find_element(By.TAG_NAME, "iframe")
+    browser.switch_to.frame(iframe)
+
+    current_element_number = 1
+
+    while True:
+        # Check if the current element is clickable
+        current_element = browser.find_element(By.XPATH, f'/html/body/div[2]/div[{current_element_number}]')
+        try:
+            current_element.click()
+        except:
+            break
+
+        # Do something with the current element
+        function
+
+        # Move to the next element
+        current_element_number += 1
+    
+    browser.switch_to.default_content()
+
+
+def updateFaqTable():
+    # Get book title
+    book_title = browser.find_element(By.ID, 'booktitle').text
+    
+    # not using text but using booklisttest object to save in faqlistandestimatedanswertable, return object in variable book
+    
+    # Get page, question, and theme numbers
+    page_num = getPageNum(book_title)
+    question_num = getQuestionNum(book_title)
+    theme_num = getThemeNum(book_title)
+
+    # Check if sum of boolean values is less than 2
+    if sum([bool(page_num), bool(question_num), bool(theme_num)]) < 2:
+        return
+
+    # Check if question attribute already exists in FAQListAndEstimatedAnswer table
+    question_attribute = FaqAndEstimatedAnswerTest(page_num=page_num, question_num=question_num, theme_num=theme_num)
+    try:
+        faq = FaqAndEstimatedAnswerTest.objects.get(book=book, question_attribute=question_attribute)
+        faq.count += 1
+        faq.save()
+    except FaqAndEstimatedAnswerTest.DoesNotExist:
+        # If question attribute does not exist, create a new one
+        faq = FaqAndEstimatedAnswerTest.objects.create(book=book, question_attribute=question_attribute, count=1)

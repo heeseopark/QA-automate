@@ -47,20 +47,6 @@ def blacklist(request):
         return HttpResponseRedirect('/qa_automate/blacklist/')
     return render(request, 'qa_automate/blacklist.html', {'elements': elements})
 
-def search_date(request):
-    if request.method == 'POST':
-        book_title = request.POST.get('book_title')
-        selected_date = request.POST.get('selected_date')
-        book = BookListTest.objects.get(title=book_title)
-        date_obj = datetime.datetime.strptime(selected_date, '%Y-%m-%d').date()
-        if DateCheckTest.objects.filter(book=book, date=date_obj).exists():
-            searched = True
-        else:
-            searched = False
-        return render(request, 'qa_automate/datepicker.html', {'book_title': book_title, 'selected_date': selected_date, 'searched': searched})
-    else:
-        return HttpResponseRedirect('/qa_automate/calender/')
-
 def faqlist(request):
     books = FaqAndEstimatedAnswerTest.objects.values_list('book__title', flat=True).distinct()
     selected_book = request.GET.get('book')
@@ -76,7 +62,6 @@ def faqlist(request):
         'books': books,
     }
     return render(request, 'qa_automate/faqlist.html', context)
-
 
 def estimatedanswer(request):
     return render(request, 'qa_automate/estimatedanswer.html')
