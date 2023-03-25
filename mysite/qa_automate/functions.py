@@ -21,6 +21,8 @@ def isInBlackList(text):
         return False
     
 def goToWaitingPage():
+    
+    global browser, service, options
 
     # find driver
     service = Service('.\chromedriver\chromedriver.exe')
