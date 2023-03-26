@@ -36,7 +36,9 @@
 
         <button type="submit" id="search">조사하기</button>
       </form>
+  
     </div>
+    <button><a href="{% url 'qa_automate:searched' book_title=book_title %}">조사된 질문 보러가기</a></button>
 
     </div>
     <script>
@@ -64,11 +66,11 @@
 
           let searchedDiv = '';
 
-          {% for date in dates %}
+          /*{% for date in dates %}
             {% if date.date == id %}
               searchedDiv = "<div class='searched'>조사함</div>";
             {% endif %}
-          {% endfor %}
+          {% endfor %}*/
 
           htmlDummy += `<div id='${id}'>${i}${searchedDiv}</div>`;
         }

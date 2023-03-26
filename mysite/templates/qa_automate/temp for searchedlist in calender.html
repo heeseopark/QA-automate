@@ -1,0 +1,16 @@
+          <!--tbody>
+            <tr>
+              {% for i in '0123456789' %}
+                {% for j in '0123456789' %}
+                  <td>
+                    {% if dates.filter(date__year=year, date__month=i+1, date__day=j+1).exists %}
+                      <div class="searched">조사함</div>
+                    {% else %}
+                      <div class="unsearched">조사안함</div>
+                    {% endif %}
+                    <div>{{ i+1 }}월 {{ j+1 }}일</div>
+                  </td>
+                {% endfor %}
+              {% endfor %}
+            </tr>
+          </tbody-->

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>조사된 질문 목록</title>
+</head>
+<body>
+
+    <h1>교재명: {{book}}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Question ID</th>
+                <th>Page</th>
+                <th>Number</th>
+                <th>Theme</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+                <tr>
+                    <td>{{ question.question_id }}</td>
+                    <td>{{ question.page }}</td>
+                    <td>{{ question.number }}</td>
+                    <td>{{ question.theme}}</td>
+
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No questions found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

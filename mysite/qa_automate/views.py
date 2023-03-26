@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest
-from .functions import isInBlackList, goToWaitingPage, updateFaqTable, goToTotalPage
+from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest
+from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage
 import datetime
 
 # Create your views here.
@@ -25,8 +25,9 @@ def calender(request, book_title):
             else:
                 date_check = DateCheckTest(book=book, date=date_obj)
                 date_check.save()
+                
             current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        #updateFaqTable(str(startdate), str(enddate), str(book_title)) #FaQ DB 업데이트
+        updateSearchedAndFaqTable(str(startdate), str(enddate), str(book_title)) #Searched DB, FaQ DB 업데이트    
         return HttpResponseRedirect(reverse('qa_automate:calender', args=[book_title]))
     return render(request, 'qa_automate/calender.html', {'book_title': book_title, 'dates': dates})
 
@@ -36,7 +37,7 @@ def booklist(request):
         title = request.POST.get('title')
         book = BookListTest(title=title)
         book.save()
-    return render(request, 'qa_automate/book_list.html', {'books': books})
+    return render(request, 'qa_automate/booklist.html', {'books': books})
 
 def blacklist(request):
     elements = BlacklistTest.objects.all()
@@ -68,3 +69,10 @@ def estimatedanswer(request):
 
 def test(request):
     return render(request, 'qa_automate/estimatedanswer.html')
+
+def extract(request):
+    return render(request, 'qa_automate/extract.html')
+
+def searched(request, book_title):
+    questions = SearchedQuestionListTest.objects.get(book=book_title)
+    return render(request, 'qa_automate/searchedlist.html', {'questions':questions, 'book':book_title})
