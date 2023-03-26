@@ -32,7 +32,7 @@ class AnsweredQuestionListTest(models.Model): #답변 가능 질문 추출 후 �
     student_name_and_id = models.CharField(max_length=200)
     page = models.IntegerField()
     number = models.IntegerField()
-    theme = models.IntegerField()
+    theme = models.IntegerField()   
     answer = models.CharField(max_length=400, null=True) 
     #img = models.ImageField()
 
