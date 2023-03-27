@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import NoSuchElementException
 
 def isInBlackList(text):
     """
@@ -128,7 +129,7 @@ def goToTotalPage():
 def paging(function):
     # Define a function to check if a JavaScript function exists on the page
     def isExecutable(function_name):
-        script = f"return typeof {function_name} === 'function';"
+        script = f"return typeof {function_name} == 'function';"
         result = browser.execute_script(script)
         return result
 
@@ -138,10 +139,10 @@ def paging(function):
         # Check if the current function is executable
         function_name = f"goPage({current_page})"
         if not isExecutable(function_name):
-            break
+            return
 
         # Execute the JavaScript function
-        browser.execute_script(f"javascript:{function_name}")
+        browser.execute_script(f"{function_name}")
 
         # Do something with the current page
         function
@@ -160,7 +161,7 @@ def getQuestionAttribute(browser):
         # Go to previous page
         browser.back()
         return
-
+    
     # Get question ID
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
 
@@ -255,21 +256,15 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
 def goingThroughTotalPage(function):
 
-    # Switch to iframe
-    iframe = browser.find_element(By.ID, "ifrmContents")
-    browser.implicitly_wait(10)
-    browser.switch_to.frame(iframe)
-
-
     current_element_number = 1
 
     while True:
         # Check if the current element is clickable
-        current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
         try:
+            current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
             current_element.click()
-        except:
-            break
+        except NoSuchElementException:
+            return
 
         # Do something with the current element
         function
@@ -281,7 +276,7 @@ def goingThroughTotalPage(function):
         browser.switch_to.frame(iframe)
 
         # Move to the next element
-        if browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[9]').text == '완료':
+        if browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[9]').text == str('완료'):
             current_element_number += 2
         else:
             current_element_number += 1
@@ -296,11 +291,11 @@ def goingThroughWaitingPage(function):
 
     while True:
         # Check if the current element is clickable
-        current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
         try:
+            current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
             current_element.click()
-        except:
-            break
+        except NoSuchElementException:
+            return
 
         # Do something with the current element
         function
@@ -349,3 +344,5 @@ def getAndSaveAtrributes():
     except FaqAndEstimatedAnswerTest.DoesNotExist:
         # If question attribute does not exist, create a new one
         faq = FaqAndEstimatedAnswerTest.objects.create(book=title, question_attribute=question_attribute, count=1)
+    
+    browser.switch_to.default_content()
