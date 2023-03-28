@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'datepicker.css' %}">
   </head>
   <body>
-    <h1>책 제목: {{book_title}}</h1>
+    <h1>책 제목: {{book.title}}</h1>
     <div class='rap'>
       <div class="header">
         <div class="btn prevDay"></div>
@@ -38,7 +38,7 @@
       </form>
   
     </div>
-    <button><a href="{% url 'qa_automate:searched' book_title=book_title %}">조사된 질문 보러가기</a></button>
+    <button><a href="{% url 'qa_automate:searched' book_title=book.title %}">조사된 질문 보러가기</a></button>
 
     </div>
     <script>

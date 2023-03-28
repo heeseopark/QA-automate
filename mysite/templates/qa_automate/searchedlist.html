@@ -9,10 +9,10 @@
     <table>
         <thead>
             <tr>
-                <th>Question ID</th>
-                <th>Page</th>
-                <th>Number</th>
+                <th>고유번호</th>
+                <th>페이지</th>
                 <th>Theme</th>
+                <th>질문번호</th>
             </tr>
         </thead>
         <tbody>
@@ -20,13 +20,9 @@
                 <tr>
                     <td>{{ question.question_id }}</td>
                     <td>{{ question.page }}</td>
-                    <td>{{ question.number }}</td>
                     <td>{{ question.theme}}</td>
+                    <td>{{ question.number }}</td>
 
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="8">No questions found.</td>
                 </tr>
             {% endfor %}
         </tbody>

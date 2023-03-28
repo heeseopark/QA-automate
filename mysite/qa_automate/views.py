@@ -18,18 +18,22 @@ def calender(request, book_title):
         startdate = request.POST.get('startdate')
         enddate = request.POST.get('enddate')
         current_date = startdate
-        while current_date <= enddate: #DateCheck DB 업데이트
+
+        #DateCheck DB 업데이트
+        while current_date <= enddate:
             date_obj = datetime.datetime.strptime(current_date, '%Y-%m-%d').date()
             if DateCheckTest.objects.filter(book=book, date=date_obj).exists():
                 pass
             else:
                 date_check = DateCheckTest(book=book, date=date_obj)
                 date_check.save()
-                
             current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        updateSearchedAndFaqTable(str(startdate), str(enddate), str(book_title)) #Searched DB, FaQ DB 업데이트    
+        
+        #Searched DB, FaQ DB 업데이트 
+        updateSearchedAndFaqTable(str(startdate), str(enddate), str(book_title))   
         return HttpResponseRedirect(reverse('qa_automate:calender', args=[book_title]))
-    return render(request, 'qa_automate/calender.html', {'book_title': book_title, 'dates': dates})
+    
+    return render(request, 'qa_automate/calender.html', {'book': book_title, 'dates': dates})
 
 def booklist(request):
     books = BookListTest.objects.all().order_by('title')
