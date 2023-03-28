@@ -8,13 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 def isInBlackList(text):
-    """
-    Checks whether the given name and id exist in the BlacklistTest table.
-    Returns True if the student is in the blacklist, False otherwise.
-    """
     try:
         blacklist = BlacklistTest.objects.get(student_name_and_id=text)
         return True
@@ -72,6 +69,19 @@ def goToWaitingPage():
     seventh_element = browser.find_element(By.ID, 'aa4233')
     seventh_element.click()
 
+    #go into iframe
+    wait = WebDriverWait(browser, 2)
+    iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+
+    # Switch to the iframe element
+    browser.switch_to.frame(iframe)
+    browser.implicitly_wait(10)
+
+
+    # find and click the eighth element
+    eighth_element = browser.find_element(By.XPATH, '/html/body/div[1]/a')
+    eighth_element.click()
+
 
 def goToTotalPage():
     global browser, service, options
@@ -124,43 +134,62 @@ def goToTotalPage():
     # find and click the seventh element
     seventh_element = browser.find_element(By.ID, 'aa4231')
     seventh_element.click()
+
+    #go into iframe
+    wait = WebDriverWait(browser, 2)
+    iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+
+    # Switch to the iframe element
+    browser.switch_to.frame(iframe)
+    browser.implicitly_wait(10)
+
+    # find and click the eighth element
+    eighth_element = browser.find_element(By.XPATH, '/html/body/div[1]/a')
+    eighth_element.click()
+
+    # Move to the next tab
+    browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + Keys.TAB)
+    browser.switch_to.window(browser.window_handles[-1])
+
     time.sleep(2)
 
+
 def paging(function):
-    # Define a function to check if a JavaScript function exists on the page
-    def isExecutable(function_name):
-        script = f"return typeof {function_name} == 'function';"
-        result = browser.execute_script(script)
-        return result
-
-    # Loop through the JavaScript functions until we reach the last page
-    current_page = 1
     while True:
-        # Check if the current function is executable
-        function_name = f"goPage({current_page})"
-        if not isExecutable(function_name):
-            return
-
-        # Execute the JavaScript function
-        browser.execute_script(f"{function_name}")
-
-        # Do something with the current page
-        function
-
-        current_page += 1
+        # Check if the element with id 'nextpage' exists
+        try:
+            wait = WebDriverWait(browser, 1)
+            wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[3]/div/a[11]')))
+            function()
+            for i in range(2,11):
+                browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]').click()
+                browser.implicitly_wait(10)
+                function()
+            browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
+            browser.implicitly_wait(10)
+        except TimeoutException:
+        # If the element doesn't exist, just increment through the pages
+            function()
+            page_number = 1
+            while True:
+                try:
+                    wait = WebDriverWait(browser, 1)
+                    wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number+1}]'))).click()
+                    # Do something with current_element
+                    function()
+                    page_number += 1
+                except TimeoutException:
+                    break
+            break
 
 
 def getQuestionAttribute(browser):
-    # Switch to iframe
-    iframe = browser.find_element(By.TAG_NAME,"iframe")
-    browser.switch_to.frame(iframe)
 
     # Check if we need to go to previous page
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text == 'N':
-        browser.switch_to.default_content()
         # Go to previous page
         browser.back()
-        return
+        break
     
     # Get question ID
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
@@ -191,10 +220,6 @@ def getQuestionAttribute(browser):
     )
     question.save()
 
-    # Switch back to default content and go to previous page
-    browser.switch_to.default_content()
-    browser.back()
-
 def getPageNum(text):
     pattern = r'(?:\b\d+\s*)?(?:p(?:g)?\.?\s{0,2})*(\d+)(?:[페페이지쪽]|\s*$)'
     match = re.search(pattern, text)
@@ -220,67 +245,31 @@ def getThemeNum(text):
     else:
         return None
 
-def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
-    goToTotalPage()
-
-    time.sleep(2)
-   
-    # Wait for the iframe element to become available
-    wait = WebDriverWait(browser, 2)
-    iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
-
-    # Switch to the iframe element
-    browser.switch_to.frame(iframe)
-    browser.implicitly_wait(10)
-
-    #select book title
-    select = Select(browser.find_element(By.ID, 'sel_chr_cd'))
-    browser.implicitly_wait(10)
-
-    select.select_by_visible_text(title_text)
-    browser.implicitly_wait(10)
-
-    browser.find_element(By.ID, 'searchSdt').clear()
-    browser.find_element(By.ID, 'searchSdt').send_keys(start_text)
-    browser.implicitly_wait(10)   
-
-    browser.find_element(By.ID, 'searchEdt').clear()
-    browser.find_element(By.ID, 'searchEdt').send_keys(end_text)
-    browser.implicitly_wait(10)
-
-    browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
-    browser.implicitly_wait(10)
-
-    paging(goingThroughTotalPage(getAndSaveAtrributes))
-
-def goingThroughTotalPage(function):
+def goingThroughTotalPage():
 
     current_element_number = 1
 
     while True:
         # Check if the current element is clickable
         try:
-            current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
-            current_element.click()
-        except NoSuchElementException:
-            return
+            wait = WebDriverWait(browser, 1)
+            wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
+        except TimeoutException:
+            break
 
         # Do something with the current element
-        function
-
+        
+        # Go Back to Total Page
+        time.sleep(0.5)
         browser.back()
-
-        iframe = browser.find_element(By.ID, "ifrmContents")
-        browser.implicitly_wait(10)
-        browser.switch_to.frame(iframe)
 
         # Move to the next element
         if browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[9]').text == str('완료'):
             current_element_number += 2
         else:
             current_element_number += 1
-    
+
 
 def goingThroughWaitingPage(function):
     # Switch to iframe
@@ -295,7 +284,7 @@ def goingThroughWaitingPage(function):
             current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
             current_element.click()
         except NoSuchElementException:
-            return
+            break
 
         # Do something with the current element
         function
@@ -303,7 +292,29 @@ def goingThroughWaitingPage(function):
         # Move to the next element
         current_element_number += 1
     
-    browser.switch_to.default_content()
+
+def updateSearchedAndFaqTable(start_text, end_text, title_text):
+
+    goToTotalPage()
+   
+    #select book title
+    select = Select(browser.find_element(By.ID, 'sel_chr_cd'))
+    browser.implicitly_wait(10)
+    time.sleep(1)
+    select.select_by_visible_text(title_text)
+
+    browser.find_element(By.ID, 'searchSdt').clear()
+    browser.find_element(By.ID, 'searchSdt').send_keys(start_text)
+    browser.implicitly_wait(10)   
+
+    browser.find_element(By.ID, 'searchEdt').clear()
+    browser.find_element(By.ID, 'searchEdt').send_keys(end_text)
+    browser.implicitly_wait(10)
+
+    browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
+    browser.implicitly_wait(10)
+    
+    paging(goingThroughTotalPage)
 
 def getAndSaveAtrributes():
    
