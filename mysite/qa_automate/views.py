@@ -36,12 +36,20 @@ def calender(request, book_title):
     return render(request, 'qa_automate/calender.html', {'book': book_title, 'dates': dates})
 
 def booklist(request):
-    books = BookListTest.objects.all().order_by('title')
-    if request.method == 'POST':
+    books = BookListTest.objects.all().order_by('lecture', 'title')
+
+    if request.method == 'POST' and 'delete_book' in request.POST:
+        title = request.POST.get('delete_book')
+        book = BookListTest.objects.filter(title=title).first()
+        if book:
+            book.delete()
+    elif request.method == 'POST':
         title = request.POST.get('title')
-        book = BookListTest(title=title)
+        lecture = request.POST.get('lecture')
+        book = BookListTest(title=title, lecture=lecture)
         book.save()
     return render(request, 'qa_automate/booklist.html', {'books': books})
+
 
 def blacklist(request):
     elements = BlacklistTest.objects.all()

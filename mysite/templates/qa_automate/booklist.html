@@ -7,6 +7,8 @@
     <h1>책 추가하기</h1>
     <form method="POST">
         {% csrf_token %}
+        <label for="lecture">강좌명:</label>
+        <input type="text" name="lecture" id="lecture">
         <label for="title">교재명:</label>
         <input type="text" name="title" id="title">
         <input type="submit" value="책 추가하기">
@@ -17,15 +19,25 @@
         <table>
             <thead>
                 <tr>
+                    <th>강좌 제목</th>
                     <th>교재 제목</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for book in books %}
-                    <tr>
-                        <td>{{ book.title }}</td>
-                        <td><button><a href="{% url 'qa_automate:calender' book_title=book.title %}">달력으로 가기</a></button></td>
-                    </tr>
+                <tr>
+                    <td>{{ book.lecture }}</td>
+                    <td>{{ book.title }}</td>
+                    <td><button><a href="{% url 'qa_automate:calender' book_title=book.title %}">달력으로 가기</a></button></td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_book" value="{{ book.title }}">
+                            <button type="submit">삭제하기</button>
+                        </form>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

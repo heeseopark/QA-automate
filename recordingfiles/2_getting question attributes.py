@@ -85,46 +85,46 @@ def goToWaitingPage():
 
 
 def paging(function):
-    print('starting Paging')
+
     while True:
         # Check if the element with id 'nextpage' exists
         try:
             wait = WebDriverWait(browser, 1)
             wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[3]/div/a[11]')))
-            print('currently in page 1')
+
             function()
-            print('page 1 execution done')
+
             for i in range(2,11):
                 browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]').click()
                 browser.implicitly_wait(10)
-                print(f'currently in page {i}')
+
                 function()
-                print(f'page {i} execution done')
+
             browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
             browser.implicitly_wait(10)
-            print('clicking next page')
+
         except TimeoutException:
         # If the element doesn't exist, just increment through the pages
             function()
-            print('page 1 execution done')
+
             page_number = 1
             while True:
                 try:
                     wait = WebDriverWait(browser, 1)
                     wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number+1}]'))).click()
                     # Do something with current_element
-                    print(f'currently in page {page_number+1}')
+
                     function()
-                    print(f'page {page_number+1} execution done')
+
                     page_number += 1
                 except TimeoutException:
                     break
             break
 
 
-def goingThroughTotalPage(function):
+def goingThroughTotalPage():
 
-    print('starting goingThroughTotalPage')
+
     current_element_number = 1
 
     while True:
@@ -132,13 +132,13 @@ def goingThroughTotalPage(function):
         try:
             wait = WebDriverWait(browser, 1)
             wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
-            print(f'element number {current_element_number} found')
+
         except TimeoutException:
-            print(f'cannot find more elements')
+
             break
             
         # Do something with the current element
-        function()
+        printattributes()
         
         # Go Back to Total Page
         time.sleep(0.5)
@@ -147,22 +147,43 @@ def goingThroughTotalPage(function):
         # Move to the next element
         current_element_number += 1
 
+
+import re
+
 def getPageNum(text):
-    pattern = r'(?:\b\d+\s*)?(?:p(?:g)?\.?\s{0,2})*(\d+)(?:\s*[페페이지쪽]|\s*$)'
-    match = re.search(pattern, text)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
+    pattern1 = r'\b(\d+)\s*[pP][gG]?[.]?\s*'
+    pattern2 = r'\b(\d+)[pP][gG]?[.]?\s*'
+    pattern3 = r'\b(\d+)[pP]?[.]?\s*'
+    pattern4 = r'\b(\d+)\s*(?:페|페이지|쪽)[.]?\s*$'
+    pattern5 = r'(?:^|\D)(\d+)\s*(?:페이지)\s*'
+
+    for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5]:
+        match = re.search(pattern, text)
+        if match:
+            num_str = match.group(1)
+            if num_str.strip() == '' or num_str.strip() != num_str:
+                return None
+            return int(num_str)
+    return None
 
 
 def getQuestionNum(text):
-    pattern = r'(?:^|[^0-9])(\d{1,2})\s*[번]'
-    match = re.search(pattern, text)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
+    pattern1 = r'(?<!\S)(\d{1,3})\s*[번 ]'
+    pattern2 = r'(?:^|\W)(?:예|예제)?\s*(\d{1,3})\s*(?:번)?'
+
+
+    for pattern in [pattern1, pattern2]:
+        match = re.search(pattern, text)
+        if match:
+            num_str = match.group(1)
+            if num_str.strip() == '' or num_str.strip() != num_str:
+                return None
+            return int(num_str)
+    
+    return None
+
+
+
 
 def getThemeNum(text):
     pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme)'
@@ -184,15 +205,20 @@ def printattributes():
     page_num = getPageNum(book_title)
     question_num = getQuestionNum(book_title)
     theme_num = getThemeNum(book_title)
+    print(f'{book_title}')
 
-    print(f'book_title: {book_title}, id:{question_id}, page:{page_num}, question:{question_num}, theme:{theme_num}')
+    print(f'id:{question_id}, page:{page_num}, question:{question_num}, theme:{theme_num}')
 
 def updateSearchedAndFaqTable():
 
     goToWaitingPage()
 
     print('finish goToWaitingPage')
+
+    
    
-    paging(goingThroughTotalPage(printattributes))
+
+    paging(goingThroughTotalPage)
+
 
 updateSearchedAndFaqTable()

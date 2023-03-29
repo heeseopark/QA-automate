@@ -195,7 +195,7 @@ def getQuestionAttribute(browser):
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text == 'N':
         # Go to previous page
         browser.back()
-        break
+        return
     
     # Get question ID
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
@@ -227,21 +227,39 @@ def getQuestionAttribute(browser):
     question.save()
 
 def getPageNum(text):
-    pattern = r'(?:\b\d+\s*)?(?:p(?:g)?\.?\s{0,2})*(\d+)(?:[페페이지쪽]|\s*$)'
-    match = re.search(pattern, text)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
+    pattern1 = r'\b(\d+)\s*[pP][gG]?[.]?\s*'
+    pattern2 = r'\b(\d+)[pP][gG]?[.]?\s*'
+    pattern3 = r'\b(\d+)[pP]?[.]?\s*'
+    pattern4 = r'\b(\d+)\s*(?:페|페이지|쪽)[.]?\s*$'
+    pattern5 = r'(?:^|\D)(\d+)\s*(?:페이지)\s*'
+
+    for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5]:
+        match = re.search(pattern, text)
+        if match:
+            num_str = match.group(1)
+            if num_str.strip() == '' or num_str.strip() != num_str:
+                return None
+            return int(num_str)
+    return None
 
 
 def getQuestionNum(text):
-    pattern = r'(?:^|[^0-9])(\d{1,2})\s*[번]'
-    match = re.search(pattern, text)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
+    pattern1 = r'(?<!\S)(\d{1,3})\s*[번 ]'
+    pattern2 = r'(?:^|\W)(?:예|예제)?\s*(\d{1,3})\s*(?:번)?'
+
+
+    for pattern in [pattern1, pattern2]:
+        match = re.search(pattern, text)
+        if match:
+            num_str = match.group(1)
+            if num_str.strip() == '' or num_str.strip() != num_str:
+                return None
+            return int(num_str)
+    
+    return None
+
+
+
 
 def getThemeNum(text):
     pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme)'
@@ -251,8 +269,19 @@ def getThemeNum(text):
     else:
         return None
 
+def getThemeNum(text):
+    pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme|Theme)'
+    match = re.search(pattern, text)
+    if match:
+        num_str = match.group(1)
+        if num_str.strip() == num_str:
+            return None
+        return int(num_str)
+    else:
+        return None
 
-def goingThroughTotalPage(function):
+
+def goingThroughTotalPageForSearch():
 
     current_element_number = 1
 
@@ -265,7 +294,7 @@ def goingThroughTotalPage(function):
             break
 
         # Do something with the current element
-        function
+        getAndSaveAtrributes()
         
         # Go Back to Total Page
         time.sleep(0.5)
@@ -278,7 +307,7 @@ def goingThroughTotalPage(function):
             current_element_number += 1
 
 
-def goingThroughWaitingPage(function):
+def goingThroughWaitingPage():
 
     current_element_number = 1
 
@@ -291,7 +320,7 @@ def goingThroughWaitingPage(function):
             break
 
         # Do something with the current element
-        function
+        
 
         # Go back to waiting page
         time.sleep(0.5)
@@ -320,7 +349,7 @@ def getAndSaveAtrributes():
 
     # Check if sum of boolean values is less than 2
     if sum([bool(page_num), bool(question_num), bool(theme_num)]) < 2:
-        break
+        return
 
     # Check if question attribute already exists in FAQListAndEstimatedAnswer table
     question_attribute = FaqAndEstimatedAnswerTest(page_num=page_num, question_num=question_num, theme_num=theme_num)
@@ -355,4 +384,4 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
     
-    paging(goingThroughTotalPage(getAndSaveAtrributes()))
+    paging(goingThroughTotalPageForSearch)

@@ -3,7 +3,10 @@ from django.db import models
 # Create your models here.
 
 class BookListTest(models.Model): #새 교재 나올 때 마다 추가
+    lecture = models.CharField(max_length=200, default='')
     title = models.CharField(max_length=200, primary_key=True)
+
+# 강조와 강좌에 따른 교재로 table 수정하기
 
 class DateCheckTest(models.Model): #각 교재별로 조사한 날짜들 저장
     book = models.ForeignKey(BookListTest, on_delete=models.CASCADE)
