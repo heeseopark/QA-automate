@@ -1,9 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datepicker.css' %}">
 	<title>Extract Page</title>
 </head>
 <body>
-	<h2>This page is an extract page</h2>
+	<table>
+		<thead>
+		  <tr>
+			<th>Question</th>
+			<th>Answer</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  {% for question in questions %}
+			<tr>
+			  <td>
+				<div class="question-container">
+				  <h3>{{ question.question }}</h3>
+				  <p>{{ question.description }}</p>
+				</div>
+			  </td>
+			  <td>
+				<div class="answer-container">
+				  <p>{{ question.answer }}</p>
+				</div>
+			  </td>
+			</tr>
+		  {% endfor %}
+		</tbody>
+	  </table>	  
 </body>
 </html>

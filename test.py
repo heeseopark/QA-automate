@@ -10,3 +10,35 @@ if 답변 불가능
     넘어가고 answered table에서 해당 답변 지우기
 
 """
+import time
+from selenium import webdriver
+import re
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+
+
+
+
+
+
+def function1(function):
+    print('in function1')
+    function()
+    
+
+def function2(function):
+    print('in function2')
+    function()
+
+def function3():
+    print('in function3')
+
+
+
+function1(function2(function3))

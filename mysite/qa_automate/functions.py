@@ -82,6 +82,12 @@ def goToWaitingPage():
     eighth_element = browser.find_element(By.XPATH, '/html/body/div[1]/a')
     eighth_element.click()
 
+    # Move to the next tab
+    browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + Keys.TAB)
+    browser.switch_to.window(browser.window_handles[-1])
+
+    time.sleep(2)
+
 
 def goToTotalPage():
     global browser, service, options
@@ -246,7 +252,7 @@ def getThemeNum(text):
         return None
 
 
-def goingThroughTotalPage():
+def goingThroughTotalPage(function):
 
     current_element_number = 1
 
@@ -259,6 +265,7 @@ def goingThroughTotalPage():
             break
 
         # Do something with the current element
+        function
         
         # Go Back to Total Page
         time.sleep(0.5)
@@ -272,26 +279,60 @@ def goingThroughTotalPage():
 
 
 def goingThroughWaitingPage(function):
-    # Switch to iframe
-    iframe = browser.find_element(By.ID, "ifrmContents")
-    browser.switch_to.frame(iframe)
 
     current_element_number = 1
 
     while True:
         # Check if the current element is clickable
         try:
-            current_element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
-            current_element.click()
-        except NoSuchElementException:
+            wait = WebDriverWait(browser, 1)
+            wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
+        except TimeoutException:
             break
 
         # Do something with the current element
         function
 
+        # Go back to waiting page
+        time.sleep(0.5)
+        browser.back()
+
         # Move to the next element
         current_element_number += 1
+
+def getAndSaveAtrributes():
+   
+    # Get book title
+    title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+    title = SearchedQuestionListTest.objects.filter(book = title)
+
+    # Get question_id
+    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]'))
     
+    # Get page, question, and theme numbers
+    page_num = getPageNum(title)
+    question_num = getQuestionNum(title)
+    theme_num = getThemeNum(title)
+
+    # Add question to SearchedQuestionListTest Table
+    search = SearchedQuestionListTest.objects.get(book = title, question_id = question_id, page = page_num, number = question_num, theme = theme_num)
+    search.save()
+
+    # Check if sum of boolean values is less than 2
+    if sum([bool(page_num), bool(question_num), bool(theme_num)]) < 2:
+        break
+
+    # Check if question attribute already exists in FAQListAndEstimatedAnswer table
+    question_attribute = FaqAndEstimatedAnswerTest(page_num=page_num, question_num=question_num, theme_num=theme_num)
+    try:
+        faq = FaqAndEstimatedAnswerTest.objects.get(book=title, question_attribute=question_attribute)
+        faq.count += 1
+        faq.save()
+    except FaqAndEstimatedAnswerTest.DoesNotExist:
+        # If question attribute does not exist, create a new one
+        faq = FaqAndEstimatedAnswerTest.objects.create(book=title, question_attribute=question_attribute, count=1)
+    
+
 
 def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
@@ -314,46 +355,4 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
     
-    paging(goingThroughTotalPage)
-
-def getAndSaveAtrributes():
-   
-    # Wait for the iframe element to become available
-    wait = WebDriverWait(browser, 2)
-    iframe = wait.until(EC.presence_of_element_located(By.ID, "ifrmContents"))
-
-    # Switch to the iframe element
-    browser.switch_to.frame(iframe)
-    browser.implicitly_wait(10)
-
-    # Get book title
-    book_title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
-    title = SearchedQuestionListTest.objects.filter(book = book_title)
-
-    # Get question_id
-    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]'))
-    
-    # Get page, question, and theme numbers
-    page_num = getPageNum(book_title)
-    question_num = getQuestionNum(book_title)
-    theme_num = getThemeNum(book_title)
-
-    # Add question to SearchedQuestionListTest Table
-    search = SearchedQuestionListTest.objects.get(book = title, question_id = question_id, page = page_num, number = question_num, theme = theme_num)
-    search.save()
-
-    # Check if sum of boolean values is less than 2
-    if sum([bool(page_num), bool(question_num), bool(theme_num)]) < 2:
-        return
-
-    # Check if question attribute already exists in FAQListAndEstimatedAnswer table
-    question_attribute = FaqAndEstimatedAnswerTest(page_num=page_num, question_num=question_num, theme_num=theme_num)
-    try:
-        faq = FaqAndEstimatedAnswerTest.objects.get(book=title, question_attribute=question_attribute)
-        faq.count += 1
-        faq.save()
-    except FaqAndEstimatedAnswerTest.DoesNotExist:
-        # If question attribute does not exist, create a new one
-        faq = FaqAndEstimatedAnswerTest.objects.create(book=title, question_attribute=question_attribute, count=1)
-    
-    browser.switch_to.default_content()
+    paging(goingThroughTotalPage(getAndSaveAtrributes()))
