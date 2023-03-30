@@ -40,6 +40,7 @@
                                 <td>{{ question.number }}</td>
                                 <td>{{ question.count }}</td>
                                 <td><a href="{% url 'estimated_answer' question.book.title question.page question.theme question.number %}">{{ question.book.title }}/{{ question.page }}/{{ question.number }}</a></td>
+
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -23,12 +23,10 @@
 		</tbody>
 	</table>
 
-	<textarea name="answer" id="answer" rows="20" cols="50">
-안녕하세요 조교 희서입니다.
-
-
-
-도움이 되셨길 바랍니다:)</textarea>
-	<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>
+	<form method="POST">
+		{% csrf_token %}
+		<textarea name="answer" id="answer" rows="20" cols="50">{{ answer }}</textarea>
+		<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>
+	</form>
 </body>
 </html>

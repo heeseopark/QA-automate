@@ -76,8 +76,36 @@ def faqlist(request):
     }
     return render(request, 'qa_automate/faqlist.html', context)
 
-def estimatedanswer(request):
-    return render(request, 'qa_automate/estimatedanswer.html')
+def estimatedanswer(request, book_title, page, theme, number):
+    # Get the matching question object
+    question = SearchedQuestionListTest.objects.get(
+        book__title=book_title, page=page, theme=theme, number=number)
+
+    # Check if there's already an estimated answer for the question
+    try:
+        faq = FaqAndEstimatedAnswerTest.objects.get(
+            book__title=book_title, page=page, theme=theme, number=number)
+        answer = faq.answer
+    except FaqAndEstimatedAnswerTest.DoesNotExist:
+        answer = ''
+
+    if request.method == 'POST':
+        answer = request.POST['answer']
+
+        # Check if there's already an estimated answer for the question
+        try:
+            faq = FaqAndEstimatedAnswerTest.objects.get(
+                book__title=book_title, page=page, theme=theme, number=number)
+            faq.answer = answer
+            faq.save()
+        except FaqAndEstimatedAnswerTest.DoesNotExist:
+            book = BookListTest.objects.get(title=book_title)
+            faq = FaqAndEstimatedAnswerTest(
+                book=book, page=page, theme=theme, number=number, answer=answer)
+            faq.save()
+
+    return render(request, 'qa_automate/estimatedanswer.html', {'question': question, 'answer': answer})
+
 
 def test(request):
     return render(request, 'qa_automate/estimatedanswer.html')
@@ -86,5 +114,15 @@ def extract(request):
     return render(request, 'qa_automate/extract.html')
 
 def searched(request, book_title):
-    questions = SearchedQuestionListTest.objects.get(book=book_title)
-    return render(request, 'qa_automate/searchedlist.html', {'questions':questions, 'book':book_title})
+    questions = SearchedQuestionListTest.objects.filter(book=book_title)
+    if request.method == 'GET':
+        page_num = request.GET.get('page_num')
+        theme_num = request.GET.get('theme_num')
+        question_num = request.GET.get('question_num')
+        if page_num:
+            questions = questions.filter(page=page_num)
+        if theme_num:
+            questions = questions.filter(theme=theme_num)
+        if question_num:
+            questions = questions.filter(number=question_num)
+    return render(request, 'qa_automate/searchedlist.html', {'questions': questions, 'book': book_title})

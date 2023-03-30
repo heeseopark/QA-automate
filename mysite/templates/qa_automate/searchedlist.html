@@ -4,8 +4,16 @@
     <title>조사된 질문 목록</title>
 </head>
 <body>
-
     <h1>교재명: {{book}}</h1>
+    <form method="get">
+        <label for="page_num">페이지 번호:</label>
+        <input type="text" name="page_num" id="page_num">
+        <label for="theme_num">테마 번호:</label>
+        <input type="text" name="theme_num" id="theme_num">
+        <label for="question_num">질문 번호:</label>
+        <input type="text" name="question_num" id="question_num">
+        <input type="submit" value="필터 적용">
+    </form>
     <table>
         <thead>
             <tr>
@@ -20,9 +28,8 @@
                 <tr>
                     <td>{{ question.question_id }}</td>
                     <td>{{ question.page }}</td>
-                    <td>{{ question.theme}}</td>
+                    <td>{{ question.theme }}</td>
                     <td>{{ question.number }}</td>
-
                 </tr>
             {% endfor %}
         </tbody>
