@@ -2,114 +2,29 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datepicker.css' %}">
   </head>
   <body>
-    <h1>책 제목: {{book.title}}</h1>
-    <div class='rap'>
-      <div class="header">
-        <div class="btn prevDay"></div>
-        <h2 class='dateTitle'></h2>
-        <div class="btn nextDay"></div>
-      </div>
-      
-      <div class="grid dateHead">
-        <div>일</div>
-        <div>월</div>
-        <div>화</div>
-        <div>수</div>
-        <div>목</div>
-        <div>금</div>
-        <div>토</div>
-      </div>
-  
-      <div class="grid dateBoard"></div>
+    <h1>책 제목: {{ book.title }}</h1>
 
-      <form method="POST">
-        {% csrf_token %}
-        <label for="startdate">조사 시작 날짜:</label>
-        <input type="date" id="startdate" name="startdate">
+    <form method="POST">
+      {% csrf_token %}
+      <label for="startdate">조사 시작 날짜:</label>
+      <input type="date" id="startdate" name="startdate">
 
-        <label for="enddate">조사 끝 날짜:</label>
-        <input type="date" id="enddate" name="enddate">
+      <label for="enddate">조사 끝 날짜:</label>
+      <input type="date" id="enddate" name="enddate">
 
-        <button type="submit" id="search">조사하기</button>
-      </form>
+      <button type="submit" id="search">조사하기</button>
+    </form>
 
+    <br>
 
-      
-      
-      
-  
-    </div>
     <button><a href="{% url 'qa_automate:searched' book_title=book.title %}">조사된 질문 보러가기</a></button>
 
-    </div>
-    <script>
-      const makeCalendar = (date) => {
-        const currentYear = new Date(date).getFullYear();
-        const currentMonth = new Date(date).getMonth() + 1;
+    <br>
 
-        const firstDay = new Date(date.setDate(1)).getDay();
-        const lastDay = new Date(currentYear, currentMonth, 0).getDate();
-
-        const limitDay = firstDay + lastDay;
-        const nextDay = Math.ceil(limitDay / 7) * 7;
-
-        let htmlDummy = '';
-
-        for (let i = 0; i < firstDay; i++) {
-          htmlDummy += `<div class="noColor"></div>`;
-        }
-
-        for (let i = 1; i <= lastDay; i++) {
-          // Add padding zeros to month and date
-          let month = currentMonth.toString().padStart(2, '0');
-          let date = i.toString().padStart(2, '0');
-          let id = `${currentYear}-${month}-${date}`;
-
-          let searchedDiv = '';
-
-          /*{% for date in dates %}
-            {% if date.date == id %}
-              searchedDiv = "<div class='searched'>조사함</div>";
-            {% endif %}
-          {% endfor %}*/
-
-          htmlDummy += `<div id='${id}'>${i}${searchedDiv}</div>`;
-        }
-
-
-
-
-
-        for (let i = limitDay; i < nextDay; i++) {
-          htmlDummy += `<div class="noColor"></div>`;
-        }
-
-        document.querySelector(`.dateBoard`).innerHTML = htmlDummy;
-        document.querySelector(`.dateTitle`).innerText = `${currentYear}년 ${currentMonth}월`;
-      }
-
-
-      const date = new Date();
-
-      makeCalendar(date);
-
-      // 이전달 이동
-      document.querySelector(`.prevDay`).onclick = () => {
-      makeCalendar(new Date(date.setMonth(date.getMonth() - 1)));
-      }
-
-      // 다음달 이동
-      document.querySelector(`.nextDay`).onclick = () => {
-      makeCalendar(new Date(date.setMonth(date.getMonth() + 1)));
-      }
-
-
-
-
-    </script>
+    {% for date in searched_dates %}
+        <p>Year: {{ date.0 }} Month: {{ date.1 }} Day: {{ date.2 }}</p>
+    {% endfor %}
   </body>
 </html>

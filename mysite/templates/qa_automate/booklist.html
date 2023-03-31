@@ -11,6 +11,11 @@
         <input type="text" name="lecture" id="lecture">
         <label for="title">교재명:</label>
         <input type="text" name="title" id="title">
+        <label for="title">교재 종류:</label>
+        <select name="book_type" id="book_type">
+            <option value="주교재">주교재</option>
+            <option value="부교재">부교재</option>
+        </select>
         <input type="submit" value="책 추가하기">
     </form>
 
@@ -19,9 +24,9 @@
         <table>
             <thead>
                 <tr>
-                    <th length="200">강좌 제목</th>
-                    <th length="200">교재 제목</th>
-                    <th></th>
+                    <th width="400">강좌 제목</th>
+                    <th width="300">교재 제목</th>
+                    <th width="200">교재 종류</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,6 +34,7 @@
                 <tr>
                     <td>{{ book.lecture }}</td>
                     <td>{{ book.title }}</td>
+                    <td>{{ book.book_type }}</td>
                     <td><button><a href="{% url 'qa_automate:calender' book_title=book.title %}">달력으로 가기</a></button></td>
                     <td>
                         <form method="POST">

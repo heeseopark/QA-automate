@@ -4,49 +4,12 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest
 from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage
-import datetime
+from datetime import datetime, timedelta
 
 # Create your views here.
 
 def init(request):
     return render(request, 'qa_automate/init.html')
-
-def calender(request, book_title):
-    book = BookListTest.objects.get(title=book_title)
-    dates = DateCheckTest.objects.filter(book=book)
-
-    # Get a list of years for which there are searched dates
-    searched_years = set(date.year for date in dates)
-
-    if request.method == 'POST':
-        startdate = request.POST.get('startdate')
-        enddate = request.POST.get('enddate')
-        current_date = startdate
-
-        #DateCheck DB 업데이트
-        while current_date <= enddate:
-            date_obj = datetime.datetime.strptime(current_date, '%Y-%m-%d').date()
-            if DateCheckTest.objects.filter(book=book, date=date_obj).exists():
-                pass
-            else:
-                date_check = DateCheckTest(book=book, date=date_obj)
-                date_check.save()
-            current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        
-        #Searched DB, FaQ DB 업데이트 
-        updateSearchedAndFaqTable(str(startdate), str(enddate), str(book_title))   
-        return HttpResponseRedirect(reverse('qa_automate:calender', args=[book_title]))
-
-    # Get a list of dates for which there are searched dates
-    searched_dates = [date.date for date in dates]
-
-    context = {
-        'book': book_title,
-        'dates': dates,
-        'searched_dates': searched_dates,
-        'searched_years': searched_years,
-    }
-    return render(request, 'qa_automate/calender.html', context)
 
 def booklist(request):
     books = BookListTest.objects.all().order_by('lecture', 'title')
@@ -59,9 +22,55 @@ def booklist(request):
     elif request.method == 'POST':
         title = request.POST.get('title')
         lecture = request.POST.get('lecture')
-        book = BookListTest(title=title, lecture=lecture)
+        booktype = request.POST.get('book_type')
+        book = BookListTest(title=title, lecture=lecture, book_type = booktype)
         book.save()
-    return render(request, 'qa_automate/booklist.html', {'books': books})
+        return HttpResponseRedirect('/qa_automate/booklist/')
+    
+    context = {
+        'books': books,
+    }
+    
+    return render(request, 'qa_automate/booklist.html', context)
+
+
+
+def calender(request, book_title):
+    book = BookListTest.objects.get(title=book_title)
+    date_checks = DateCheckTest.objects.filter(book=book)
+
+    # Get a list of years for which there are searched dates
+    searched_years = set(date_check.year for date_check in date_checks)
+    searched_months = set(i for i in range(1,13))
+
+    if request.method == 'POST':
+        startdate_str = request.POST.get('startdate')
+        enddate_str = request.POST.get('enddate')
+        startdate = datetime.strptime(startdate_str, '%Y-%m-%d').date()
+        enddate = datetime.strptime(enddate_str, '%Y-%m-%d').date()
+
+        # DateCheck DB 업데이트
+        current_date = startdate
+        while current_date <= enddate:
+            if not DateCheckTest.objects.filter(book=book, year=current_date.year, month=current_date.month, date=current_date.date).exists():
+                date_check = DateCheckTest(book=book, year=current_date.year, month=current_date.month, date=current_date.date)
+                date_check.save()
+            current_date += timedelta(days=1)
+
+        # Searched DB, FaQ DB 업데이트
+        updateSearchedAndFaqTable(startdate_str, enddate_str, book.title)
+        return HttpResponseRedirect(reverse('qa_automate:calender', args=[book.title]))
+
+    # Get a list of dates for which there are searched dates
+    searched_dates = [[date_check.year, date_check.month, date_check.date] for date_check in date_checks]
+
+    context = {
+        'book': book_title,
+        'searched_dates': searched_dates,
+        'searched_months': searched_months,
+        'searched_years': searched_years,
+    }
+    return render(request, 'qa_automate/calender.html', context)
 
 
 def blacklist(request):
