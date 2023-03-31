@@ -147,17 +147,15 @@ def goingThroughTotalPage():
         # Move to the next element
         current_element_number += 1
 
-
-import re
-
 def getPageNum(text):
-    pattern1 = r'\b(\d+)\s*[pP][gG]?[.]?\s*'
-    pattern2 = r'\b(\d+)[pP][gG]?[.]?\s*'
-    pattern3 = r'\b(\d+)[pP]?[.]?\s*'
-    pattern4 = r'\b(\d+)\s*(?:페|페이지|쪽)[.]?\s*$'
-    pattern5 = r'(?:^|\D)(\d+)\s*(?:페이지)\s*'
+    patterns = [
+        r'\b[pP](?:[gG])?\.?\s?(\d+)\s*',
+        r'\b(\d+)\s?[pP](?:[gG]\.?)?\s*',
+        r'\b(\d+)\s?(?:페|페이지|쪾|쪽)\s*',
+        r'\b(?:페이지)\s?(\d+)\s*',
+    ]
 
-    for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5]:
+    for pattern in patterns:
         match = re.search(pattern, text)
         if match:
             num_str = match.group(1)
@@ -168,30 +166,39 @@ def getPageNum(text):
 
 
 def getQuestionNum(text):
-    pattern1 = r'(?<!\S)(\d{1,3})\s*[번 ]'
-    pattern2 = r'(?:^|\W)(?:예|예제)?\s*(\d{1,3})\s*(?:번)?'
+    patterns = [
+        r'\b(\d+)\s?(?:번)\s*',
+        r'\b(?:예제|문제)\s?(\d+)\s*',
+        r'[#]\s?(\d+)\s*',
+    ]
 
-
-    for pattern in [pattern1, pattern2]:
+    for pattern in patterns:
         match = re.search(pattern, text)
         if match:
             num_str = match.group(1)
             if num_str.strip() == '' or num_str.strip() != num_str:
                 return None
             return int(num_str)
-    
+    return None
+
+
+def getThemeNum(text):
+    patterns = [
+        r'\b(?:th|TH|Th|띰|theme|Theme)\s?(\d+)\s*',
+        r'\b(\d+)\s?(?:th|TH|Th|띰|theme|Theme)\s*',
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text)
+        if match:
+            num_str = match.group(1)
+            if num_str.strip() == '' or num_str.strip() != num_str:
+                return None
+            return int(num_str)
     return None
 
 
 
-
-def getThemeNum(text):
-    pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme)'
-    match = re.search(pattern, text)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
 
 
 def printattributes():

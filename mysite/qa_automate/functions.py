@@ -88,7 +88,6 @@ def goToWaitingPage():
 
     time.sleep(2)
 
-
 def goToTotalPage():
     global browser, service, options
     # find driver
@@ -159,7 +158,6 @@ def goToTotalPage():
 
     time.sleep(2)
 
-
 def paging(function):
     while True:
         # Check if the element with id 'nextpage' exists
@@ -188,52 +186,15 @@ def paging(function):
                     break
             break
 
-
-def getQuestionAttribute(browser):
-
-    # Check if we need to go to previous page
-    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text == 'N':
-        # Go to previous page
-        browser.back()
-        return
-    
-    # Get question ID
-    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
-
-    # Get Student name and ID
-    student_name_and_id = browser.find_element(By.XPATH, "/html/body/div[1]/table/tbody/tr[4]/td[1]/a").text
-
-    # Get book object
-    book_title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
-    book = BookListTest.objects.get(title=book_title)
-
-    # Get Page Number and Question Number
-    text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
-    page_number = getPageNum(text)
-    question_number = getQuestionNum(text)
-    theme_number = getThemeNum(text)
-
-    # Save question attributes to database
-    question = FaqAndEstimatedAnswerTest(
-        
-        question_id=question_id,
-        book=book,
-        student_name_and_id=student_name_and_id,  # TODO: Replace with actual student name
-        page=page_number,  # TODO: Replace with actual page number
-        number=question_number,  # TODO: Replace with actual question number
-        theme=theme_number,  # TODO: Replace with actual theme number
-
-    )
-    question.save()
-
 def getPageNum(text):
-    pattern1 = r'\b(\d+)\s*[pP][gG]?[.]?\s*'
-    pattern2 = r'\b(\d+)[pP][gG]?[.]?\s*'
-    pattern3 = r'\b(\d+)[pP]?[.]?\s*'
-    pattern4 = r'\b(\d+)\s*(?:페|페이지|쪽)[.]?\s*$'
-    pattern5 = r'(?:^|\D)(\d+)\s*(?:페이지)\s*'
+    patterns = [
+        r'\b[pP](?:[gG])?\.?\s?(\d+)\s*',
+        r'\b(\d+)\s?[pP](?:[gG]\.?)?\s*',
+        r'\b(\d+)\s?(?:페|페이지|쪾|쪽)\s*',
+        r'\b(?:페이지)\s?(\d+)\s*',
+    ]
 
-    for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5]:
+    for pattern in patterns:
         match = re.search(pattern, text)
         if match:
             num_str = match.group(1)
@@ -241,45 +202,37 @@ def getPageNum(text):
                 return None
             return int(num_str)
     return None
-
 
 def getQuestionNum(text):
-    pattern1 = r'(?<!\S)(\d{1,3})\s*[번 ]'
-    pattern2 = r'(?:^|\W)(?:예|예제)?\s*(\d{1,3})\s*(?:번)?'
+    patterns = [
+        r'\b(\d+)\s?(?:번)\s*',
+        r'\b(?:예제|문제)\s?(\d+)\s*',
+        r'[#]\s?(\d+)\s*',
+    ]
 
-
-    for pattern in [pattern1, pattern2]:
+    for pattern in patterns:
         match = re.search(pattern, text)
         if match:
             num_str = match.group(1)
             if num_str.strip() == '' or num_str.strip() != num_str:
                 return None
             return int(num_str)
-    
     return None
 
-
-
-
 def getThemeNum(text):
-    pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme)'
-    match = re.search(pattern, text)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
+    patterns = [
+        r'\b(?:th|TH|Th|띰|theme|Theme)\s?(\d+)\s*',
+        r'\b(\d+)\s?(?:th|TH|Th|띰|theme|Theme)\s*',
+    ]
 
-def getThemeNum(text):
-    pattern = r'(?:^|[^0-9])(\d{1,2})\s*(?:띰|theme|Theme)'
-    match = re.search(pattern, text)
-    if match:
-        num_str = match.group(1)
-        if num_str.strip() == num_str:
-            return None
-        return int(num_str)
-    else:
-        return None
-
+    for pattern in patterns:
+        match = re.search(pattern, text)
+        if match:
+            num_str = match.group(1)
+            if num_str.strip() == '' or num_str.strip() != num_str:
+                return None
+            return int(num_str)
+    return None
 
 def goingThroughTotalPageForSearch():
 
@@ -331,9 +284,14 @@ def goingThroughWaitingPage():
 
 def getAndSaveAtrributes():
    
-    # Get book title
+    # Get question title text
     title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
-    title = SearchedQuestionListTest.objects.filter(book = title)
+
+    book_obj = SearchedQuestionListTest.objects.filter(book = title)
+
+    # Get lecture text
+    lecturetext = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
+    book_candidate = BookListTest.objects.get(lecture = lecturetext)
 
     # Get question_id
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]'))
