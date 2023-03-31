@@ -14,6 +14,10 @@ def init(request):
 def calender(request, book_title):
     book = BookListTest.objects.get(title=book_title)
     dates = DateCheckTest.objects.filter(book=book)
+
+    # Get a list of years for which there are searched dates
+    searched_years = set(date.year for date in dates)
+
     if request.method == 'POST':
         startdate = request.POST.get('startdate')
         enddate = request.POST.get('enddate')
@@ -32,8 +36,17 @@ def calender(request, book_title):
         #Searched DB, FaQ DB 업데이트 
         updateSearchedAndFaqTable(str(startdate), str(enddate), str(book_title))   
         return HttpResponseRedirect(reverse('qa_automate:calender', args=[book_title]))
-    
-    return render(request, 'qa_automate/calender.html', {'book': book_title, 'dates': dates})
+
+    # Get a list of dates for which there are searched dates
+    searched_dates = [date.date for date in dates]
+
+    context = {
+        'book': book_title,
+        'dates': dates,
+        'searched_dates': searched_dates,
+        'searched_years': searched_years,
+    }
+    return render(request, 'qa_automate/calender.html', context)
 
 def booklist(request):
     books = BookListTest.objects.all().order_by('lecture', 'title')
