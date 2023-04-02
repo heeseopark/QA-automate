@@ -287,11 +287,27 @@ def getAndSaveAtrributes():
     # Get question title text
     title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
 
-    book_obj = SearchedQuestionListTest.objects.filter(book = title)
+    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
+        lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
+        try:
+            book = BookListTest.objects.get(lecture=lecture_str, book_type='주교재').title
 
-    # Get lecture text
-    lecturetext = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
-    book_candidate = BookListTest.objects.get(lecture = lecturetext)
+            # 부교재 확인하기
+            if '워크북' in title or '시냅스' in title:
+                book = BookListTest.objects.get(lecture=lecture_str, book_type='부교재').title
+        except BookListTest.DoesNotExist:
+            return
+
+    elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
+        try:
+            book_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[3]/td[1]').text
+            index = book_str.rfind('(') # Find the index of the last '(' in the string
+            if index != -1:
+                book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
+            book = BookListTest.objects.get(title = book_str)
+
+        except BookListTest.DoesNotExist:
+            return
 
     # Get question_id
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]'))
@@ -302,7 +318,7 @@ def getAndSaveAtrributes():
     theme_num = getThemeNum(title)
 
     # Add question to SearchedQuestionListTest Table
-    search = SearchedQuestionListTest.objects.get(book = title, question_id = question_id, page = page_num, number = question_num, theme = theme_num)
+    search = SearchedQuestionListTest.objects.get(book = book, question_id = question_id, page = page_num, number = question_num, theme = theme_num)
     search.save()
 
     # Check if sum of boolean values is less than 2
@@ -312,12 +328,12 @@ def getAndSaveAtrributes():
     # Check if question attribute already exists in FAQListAndEstimatedAnswer table
     question_attribute = FaqAndEstimatedAnswerTest(page_num=page_num, question_num=question_num, theme_num=theme_num)
     try:
-        faq = FaqAndEstimatedAnswerTest.objects.get(book=title, question_attribute=question_attribute)
+        faq = FaqAndEstimatedAnswerTest.objects.get(book=book, question_attribute=question_attribute)
         faq.count += 1
         faq.save()
     except FaqAndEstimatedAnswerTest.DoesNotExist:
         # If question attribute does not exist, create a new one
-        faq = FaqAndEstimatedAnswerTest.objects.create(book=title, question_attribute=question_attribute, count=1)
+        faq = FaqAndEstimatedAnswerTest.objects.create(book=book, question_attribute=question_attribute, count=1)
     
 
 
@@ -343,3 +359,5 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     browser.implicitly_wait(10)
     
     paging(goingThroughTotalPageForSearch)
+
+    browser.quit()

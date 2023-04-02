@@ -17,14 +17,10 @@
       <button type="submit" id="search">조사하기</button>
     </form>
 
-    <br>
-
     <button><a href="{% url 'qa_automate:searched' book_title=book.title %}">조사된 질문 보러가기</a></button>
 
-    <br>
-
-    {% for date in searched_dates %}
-        <p>Year: {{ date.0 }} Month: {{ date.1 }} Day: {{ date.2 }}</p>
+    {% for date in date_checks %}
+        <p>{{ date }}</p>
     {% endfor %}
   </body>
 </html>

@@ -11,9 +11,7 @@ class BookListTest(models.Model): #새 교재 나올 때 마다 추가
 
 class DateCheckTest(models.Model): #각 교재별로 조사한 날짜들 저장
     book = models.ForeignKey(BookListTest, on_delete=models.CASCADE)
-    year = models.IntegerField(null=True)
-    month = models.IntegerField(null=True)
-    day = models.IntegerField(null=True)
+    date = models.DateField(null=True)
 
 class SearchedQuestionListTest(models.Model): #모든 교재에 대해 조사한 질문들 저장
     question_id = models.IntegerField(primary_key=True)

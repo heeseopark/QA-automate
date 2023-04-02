@@ -5,7 +5,7 @@ app_name = 'qa_automate'
 
 urlpatterns = [
     path('', views.init, name='init'),
-    path('calender/<str:book_title>', views.calender, name='calender'),
+    path('calender/<str:book_title>', views.calendar, name='calendar'),
     path('booklist/', views.booklist),
     path('blacklist/', views.blacklist),
     path('test/', views.test),
