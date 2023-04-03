@@ -23,22 +23,3 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
-
-
-
-
-def function1(function):
-    print('in function1')
-    function()
-    
-
-def function2(function):
-    print('in function2')
-    function()
-
-def function3():
-    print('in function3')
-
-
-
-function1(function2(function3))
