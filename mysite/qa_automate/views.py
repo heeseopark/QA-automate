@@ -141,4 +141,5 @@ def searched(request, book_title):
             questions = questions.filter(theme=theme_num)
         if question_num:
             questions = questions.filter(number=question_num)
+
     return render(request, 'qa_automate/searchedlist.html', {'questions': questions, 'book': book_title})

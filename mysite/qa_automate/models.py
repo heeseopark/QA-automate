@@ -5,7 +5,7 @@ from django.db import models
 class BookListTest(models.Model): #새 교재 나올 때 마다 추가
     lecture = models.CharField(max_length=100, null=True)
     title = models.CharField(max_length=100, primary_key=True)
-    type = models.CharField(max_length=10, null=True)
+    type = models.CharField(max_length=10, default='주교재')
 
 # 교재 와 강좌에 따른 교재로 table 수정하기
 
@@ -53,4 +53,4 @@ class AnsweredQuestionListTest(models.Model): #답변 가능 질문 추출 후 �
     #img = models.ImageField()
 
 class BlacklistTest(models.Model): #답변 금지 학생 목록
-    student = models.CharField(max_length=50)
+    student = models.CharField(max_length=50, primary_key=True)

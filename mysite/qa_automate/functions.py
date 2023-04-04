@@ -322,7 +322,7 @@ def getAndSaveAtrributes():
     search.save()
 
     # Check if sum of boolean values is less than 2
-    if sum([bool(page_num), bool(question_num), bool(theme_num)]) < 2:
+    if not (bool(page_num) or bool(question_num)):
         return
 
     # Check if question attribute already exists in FAQListAndEstimatedAnswer table
