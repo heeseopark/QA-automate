@@ -13,7 +13,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 def isInBlackList(text):
     try:
-        blacklist = BlacklistTest.objects.get(student_name_and_id=text)
+        blacklist = BlacklistTest.objects.get(student=text)
         return True
     except BlacklistTest.DoesNotExist:
         return False
@@ -162,7 +162,7 @@ def paging(function):
     while True:
         # Check if the element with id 'nextpage' exists
         try:
-            wait = WebDriverWait(browser, 1)
+            wait = WebDriverWait(browser, 2)
             wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[3]/div/a[11]')))
             function()
             for i in range(2,11):
@@ -290,11 +290,11 @@ def getAndSaveAtrributes():
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
         lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
         try:
-            book = BookListTest.objects.get(lecture=lecture_str, book_type='주교재').title
+            book = BookListTest.objects.get(lecture=lecture_str, type='주교재').title
 
             # 부교재 확인하기
             if '워크북' in title or '시냅스' in title:
-                book = BookListTest.objects.get(lecture=lecture_str, book_type='부교재').title
+                book = BookListTest.objects.get(lecture=lecture_str, type='부교재').title
         except BookListTest.DoesNotExist:
             return
 
@@ -318,7 +318,7 @@ def getAndSaveAtrributes():
     theme_num = getThemeNum(title)
 
     # Add question to SearchedQuestionListTest Table
-    search = SearchedQuestionListTest.objects.get(book = book, question_id = question_id, page = page_num, number = question_num, theme = theme_num)
+    search = SearchedQuestionListTest.objects.get(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num)
     search.save()
 
     # Check if sum of boolean values is less than 2
@@ -326,14 +326,13 @@ def getAndSaveAtrributes():
         return
 
     # Check if question attribute already exists in FAQListAndEstimatedAnswer table
-    question_attribute = FaqAndEstimatedAnswerTest(page_num=page_num, question_num=question_num, theme_num=theme_num)
     try:
-        faq = FaqAndEstimatedAnswerTest.objects.get(book=book, question_attribute=question_attribute)
+        faq = FaqAndEstimatedAnswerTest.objects.get(book=book, page=page_num, number=question_num, theme=theme_num )
         faq.count += 1
         faq.save()
     except FaqAndEstimatedAnswerTest.DoesNotExist:
         # If question attribute does not exist, create a new one
-        faq = FaqAndEstimatedAnswerTest.objects.create(book=book, question_attribute=question_attribute, count=1)
+        faq = FaqAndEstimatedAnswerTest.objects.create(book=book, page=page_num, number=question_num, theme=theme_num, count=1)
     
 
 
@@ -361,3 +360,9 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     paging(goingThroughTotalPageForSearch)
 
     browser.quit()
+
+
+def save_question():
+    title_ist = BookListTest.objects.get(title = '[12990] (2015 개정) 시발점 수학l')
+    question = SearchedQuestionListTest(id = 1234, book = title_ist,  page = 12, number = 34, theme = 56)
+    question.save()

@@ -14,7 +14,7 @@
     </form>
     <ul>
       {% for element in elements %}
-        <li>{{ element.student_name_and_id }}</li>
+        <li>{{ element.student }}</li>
       {% endfor %}
     </ul>
     <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
