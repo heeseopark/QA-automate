@@ -131,6 +131,7 @@ def extract(request):
 
 def searched(request, book_title):
     questions = SearchedQuestionListTest.objects.filter(book__title=book_title).order_by('id')
+    
 
     if request.method == 'GET':
         page_num = request.GET.get('page_num')
@@ -142,5 +143,4 @@ def searched(request, book_title):
             questions = questions.filter(theme=theme_num)
         if question_num:
             questions = questions.filter(number=question_num)
-
     return render(request, 'qa_automate/searchedlist.html', {'questions': questions, 'book': book_title})
