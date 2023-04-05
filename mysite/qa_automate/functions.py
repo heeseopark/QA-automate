@@ -290,11 +290,10 @@ def getAndSaveAtrributes():
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
         lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
         try:
-            book = BookListTest.objects.get(lecture=lecture_str, type='주교재').title
-
+            book = BookListTest.objects.get(lecture=lecture_str, type='주교재')
             # 부교재 확인하기
             if '워크북' in title or '시냅스' in title:
-                book = BookListTest.objects.get(lecture=lecture_str, type='부교재').title
+                book = BookListTest.objects.get(lecture=lecture_str, type='부교재')
         except BookListTest.DoesNotExist:
             return
 
@@ -310,7 +309,7 @@ def getAndSaveAtrributes():
             return
 
     # Get question_id
-    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]'))
+    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
     
     # Get page, question, and theme numbers
     page_num = getPageNum(title)
@@ -318,7 +317,7 @@ def getAndSaveAtrributes():
     theme_num = getThemeNum(title)
 
     # Add question to SearchedQuestionListTest Table
-    search = SearchedQuestionListTest.objects.get(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num)
+    search = SearchedQuestionListTest(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num)
     search.save()
 
     # Check if sum of boolean values is less than 2

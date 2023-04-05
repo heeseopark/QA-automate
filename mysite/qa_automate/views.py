@@ -130,7 +130,8 @@ def extract(request):
     return render(request, 'qa_automate/extract.html')
 
 def searched(request, book_title):
-    questions = SearchedQuestionListTest.objects.filter(book=book_title)
+    questions = SearchedQuestionListTest.objects.filter(book__title=book_title).order_by('id')
+
     if request.method == 'GET':
         page_num = request.GET.get('page_num')
         theme_num = request.GET.get('theme_num')

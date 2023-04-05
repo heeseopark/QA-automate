@@ -21,5 +21,17 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from datetime import datetime, timedelta
 
+def printdate(startdate_str, enddate_str):
+    startdate = datetime.strptime(startdate_str, '%Y-%m-%d')
+    enddate = datetime.strptime(enddate_str, '%Y-%m-%d')
+    dates = []
+    # DateCheck DB 업데이트
+    current_date = startdate
+    while current_date <= enddate:
+        if not current_date in dates:
+            print(current_date)
+        current_date += timedelta(days=1)
 
+printdate('2023-03-01', '2023-03-05')
