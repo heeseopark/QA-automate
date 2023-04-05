@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest
-from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, save_question
+from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage
 from datetime import datetime, timedelta
 
 # Create your views here.
@@ -20,7 +20,7 @@ def booklist(request):
         if book:
             book.delete()
     elif request.method == 'POST':
-        title = request.POST.get('title')
+        title = request.POST.get('title').strip().lower()
         lecture = request.POST.get('lecture').strip().lower()
         booktype = request.POST.get('book_type').strip().lower()
         book = BookListTest(title=title, lecture=lecture, type = booktype)
@@ -92,21 +92,26 @@ def blacklist(request):
         return HttpResponseRedirect('/qa_automate/blacklist/')
     return render(request, 'qa_automate/blacklist.html', {'elements': elements})
 
+
+#예상 답변 있는 경우, 없는 경우, 교재에 따라 거르는거 아직 안됨
 def faqlist(request):
     books = FaqAndEstimatedAnswerTest.objects.values_list('book__title', flat=True).distinct()
-    selected_book = request.GET.get('book')
-    if selected_book:
-        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='', book=selected_book)
-        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='', book=selected_book)
-    else:
-        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='')
-        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='')
+    
+    unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='').order_by('-count')
+    answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='').order_by('-count')
+        
+    if request.method == 'GET':
+        selected_book = request.GET.get('book')
+        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='', book=selected_book).order_by('-count')
+        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='', book=selected_book).order_by('-count')
+
     context = {
         'unanswerable_questions': unanswerable_questions,
         'answerable_questions': answerable_questions,
         'books': books,
     }
     return render(request, 'qa_automate/faqlist.html', context)
+
 
 def estimatedanswer(request, book_title, page, theme, number):
     # Get the matching question object
@@ -140,7 +145,6 @@ def estimatedanswer(request, book_title, page, theme, number):
 
 
 def test(request):
-    save_question()
     return render(request, 'qa_automate/booklist.html')
 
 def extract(request):

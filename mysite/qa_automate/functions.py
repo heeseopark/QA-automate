@@ -164,15 +164,18 @@ def paging(function):
         try:
             wait = WebDriverWait(browser, 2)
             wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[3]/div/a[11]')))
+            print('in page 1')
             function()
             for i in range(2,11):
                 browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]').click()
                 browser.implicitly_wait(10)
+                print(f'in page {i}')
                 function()
             browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
             browser.implicitly_wait(10)
         except TimeoutException:
         # If the element doesn't exist, just increment through the pages
+            print('in page 1')
             function()
             page_number = 1
             while True:
@@ -180,6 +183,7 @@ def paging(function):
                     wait = WebDriverWait(browser, 1)
                     wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number+1}]'))).click()
                     # Do something with current_element
+                    print(f'in page {i}')
                     function()
                     page_number += 1
                 except TimeoutException:
@@ -199,9 +203,9 @@ def getPageNum(text):
         if match:
             num_str = match.group(1)
             if num_str.strip() == '' or num_str.strip() != num_str:
-                return None
+                return 0
             return int(num_str)
-    return None
+    return 0
 
 def getQuestionNum(text):
     patterns = [
@@ -215,9 +219,9 @@ def getQuestionNum(text):
         if match:
             num_str = match.group(1)
             if num_str.strip() == '' or num_str.strip() != num_str:
-                return None
+                return 0
             return int(num_str)
-    return None
+    return 0
 
 def getThemeNum(text):
     patterns = [
@@ -230,9 +234,9 @@ def getThemeNum(text):
         if match:
             num_str = match.group(1)
             if num_str.strip() == '' or num_str.strip() != num_str:
-                return None
+                return 0
             return int(num_str)
-    return None
+    return 0
 
 def goingThroughTotalPageForSearch():
 
@@ -359,9 +363,3 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     paging(goingThroughTotalPageForSearch)
 
     browser.quit()
-
-
-def save_question():
-    title_ist = BookListTest.objects.get(title = '[12990] (2015 개정) 시발점 수학l')
-    question = SearchedQuestionListTest(id = 1234, book = title_ist,  page = 12, number = 34, theme = 56)
-    question.save()
