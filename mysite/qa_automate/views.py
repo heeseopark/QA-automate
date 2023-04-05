@@ -21,8 +21,8 @@ def booklist(request):
             book.delete()
     elif request.method == 'POST':
         title = request.POST.get('title')
-        lecture = request.POST.get('lecture')
-        booktype = request.POST.get('book_type')
+        lecture = request.POST.get('lecture').strip().lower()
+        booktype = request.POST.get('book_type').strip().lower()
         book = BookListTest(title=title, lecture=lecture, type = booktype)
         book.save()
         return HttpResponseRedirect('/qa_automate/booklist/')
@@ -64,6 +64,23 @@ def calendar(request, book_title):
     }
     return render(request, 'qa_automate/calendar.html', context)
 
+def searched(request, book_title):
+    book_text = str(book_title).lower().strip()
+    questions = SearchedQuestionListTest.objects.filter(book__title=book_text).order_by('id')
+    print(book_title)
+    print(book_text)
+
+    if request.method == 'GET':
+        page_num = request.GET.get('page_num')
+        theme_num = request.GET.get('theme_num')
+        question_num = request.GET.get('question_num')
+        if page_num:
+            questions = questions.filter(page=page_num)
+        if theme_num:
+            questions = questions.filter(theme=theme_num)
+        if question_num:
+            questions = questions.filter(number=question_num)
+    return render(request, 'qa_automate/searchedlist.html', {'questions': questions, 'book': book_text})
 
 
 def blacklist(request):
@@ -129,18 +146,3 @@ def test(request):
 def extract(request):
     return render(request, 'qa_automate/extract.html')
 
-def searched(request, book_title):
-    questions = SearchedQuestionListTest.objects.filter(book__title=book_title).order_by('id')
-    
-
-    if request.method == 'GET':
-        page_num = request.GET.get('page_num')
-        theme_num = request.GET.get('theme_num')
-        question_num = request.GET.get('question_num')
-        if page_num:
-            questions = questions.filter(page=page_num)
-        if theme_num:
-            questions = questions.filter(theme=theme_num)
-        if question_num:
-            questions = questions.filter(number=question_num)
-    return render(request, 'qa_automate/searchedlist.html', {'questions': questions, 'book': book_title})
