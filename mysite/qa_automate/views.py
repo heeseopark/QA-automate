@@ -93,17 +93,19 @@ def blacklist(request):
     return render(request, 'qa_automate/blacklist.html', {'elements': elements})
 
 
-#예상 답변 있는 경우, 없는 경우, 교재에 따라 거르는거 아직 안됨
 def faqlist(request):
     books = FaqAndEstimatedAnswerTest.objects.values_list('book__title', flat=True).distinct()
-    
-    unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='').order_by('-count')
-    answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='').order_by('-count')
-        
     if request.method == 'GET':
         selected_book = request.GET.get('book')
-        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='', book=selected_book).order_by('-count')
-        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='', book=selected_book).order_by('-count')
+        if selected_book == '':
+            unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='').order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='').order_by('-count')
+        else:
+            unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='', book=selected_book).order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswerTest.objects.filter(book=selected_book).exclude(answer='').order_by('-count')
+    else:
+        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='').order_by('-count')
+        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='').order_by('-count')
 
     context = {
         'unanswerable_questions': unanswerable_questions,
@@ -111,6 +113,7 @@ def faqlist(request):
         'books': books,
     }
     return render(request, 'qa_automate/faqlist.html', context)
+
 
 
 def estimatedanswer(request, book_title, page, theme, number):
