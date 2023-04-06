@@ -7,7 +7,7 @@
 	<title>Extract Page</title>
 </head>
 <body>
-	<button type="submit" id="search", name = 'extractquestions'>답변 추출하기</button>
+	<form method = 'POST'>{% csrf_token %}<button type="submit" id="search", name = 'extractquestions'>답변 추출하기</button></form>
 	<table>
 		<thead>
 		  <tr>
@@ -20,8 +20,7 @@
 			  <td>
 				<div class="qa-container">
 				  <div class="question-container">
-					<h3>{{ question.question }}</h3>
-					<p>{{ question.description }}</p>
+					<p>{{ question.question }}</p>
 				  </div>
 				  <div class="answer-container">
 					<p>{{ question.answer }}</p>
@@ -30,18 +29,10 @@
 					<button onclick="deleteQuestion(this)">Delete</button>
 				  </div>
 				  <div class="qa-info">
-					<p><strong>Book:</strong> {{ question.book.title }}</p>
+					<p><strong>Book:</strong> {{ question.book }}</p>
 					<p><strong>Page:</strong> {{ question.page }}</p>
-					<p><strong>Theme:</strong> {{ question.theme }}</p>
 					<p><strong>Question Number:</strong> {{ question.number }}</p>
-				  </div>
-				  <div class="qa-estimated-answer">
-					<h4>Estimated Answer:</h4>
-					{% if question.faq_and_estimated_answer %}
-					  <p>{{ question.faq_and_estimated_answer.answer }}</p>
-					{% else %}
-					  <p>No estimated answer yet.</p>
-					{% endif %}
+					<p><strong>Theme:</strong> {{ question.theme }}</p>
 				  </div>
 				</div>
 			  </td>

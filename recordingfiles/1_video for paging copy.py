@@ -87,25 +87,25 @@ def goToTotalPage():
 
     time.sleep(2)
 
-def paging(function):
+def paging():
     while True:
         # Check if the element with id 'nextpage' exists
         try:
             wait = WebDriverWait(browser, 2)
             wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[3]/div/a[11]')))
             print('in page 1')
-            function()
+
             for i in range(2,11):
                 browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]').click()
                 browser.implicitly_wait(10)
                 print(f'in page {i}')
-                function()
+
             browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
             browser.implicitly_wait(10)
         except TimeoutException:
         # If the element doesn't exist, just increment through the pages
             print('in page 1')
-            function()
+
             page_number = 1
             while True:
                 try:
@@ -113,7 +113,7 @@ def paging(function):
                     wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number+1}]'))).click()
                     # Do something with current_element
                     print(f'in page {i}')
-                    function()
+
                     page_number += 1
                 except TimeoutException:
                     break
@@ -173,6 +173,6 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
     print('click search button')
     
-    paging(goingThroughTotalPage)
+    paging()
 
 updateSearchedAndFaqTable('2023-03-01', '2023-03-10', '수학의 시작, 시발점 - 수학l')

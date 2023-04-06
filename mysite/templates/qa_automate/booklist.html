@@ -36,13 +36,6 @@
                     <td>{{ book.title }}</td>
                     <td>{{ book.type }}</td>
                     <td><button><a href="{% url 'qa_automate:calendar' book_title=book.title %}">달력으로 가기</a></button></td>
-                    <td>
-                        <form method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="delete_book" value="{{ book.title }}">
-                            <button type="submit">삭제하기</button>
-                        </form>
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -1,4 +1,4 @@
-from .models import BlacklistTest, BookListTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest
+from .models import BlacklistTest, BookListTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest, AnsweredQuestionListTest, ExtractedQuestionListTest
 import time
 from selenium import webdriver
 import re
@@ -158,6 +158,7 @@ def goToTotalPage():
 
     time.sleep(2)
 
+# paging 함수 맞게 작동하는지 체크해야함
 def paging(function):
     while True:
         # Check if the element with id 'nextpage' exists
@@ -277,7 +278,7 @@ def goingThroughWaitingPageForExtract():
             break
 
         # Do something with the current element
-        
+        checkFaq()
 
         # Go back to waiting page
         time.sleep(0.5)
@@ -285,6 +286,58 @@ def goingThroughWaitingPageForExtract():
 
         # Move to the next element
         current_element_number += 1
+
+def checkFaq():
+    # Get question title text
+    title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+
+    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
+        lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
+        try:
+            book = BookListTest.objects.get(lecture=lecture_str, type='주교재')
+            # 부교재 확인하기
+            if '워크북' in title or '시냅스' in title:
+                book = BookListTest.objects.get(lecture=lecture_str, type='부교재')
+        except BookListTest.DoesNotExist:
+            return
+
+    elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
+        try:
+            book_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[3]/td[1]').text
+            index = book_str.rfind('(') # Find the index of the last '(' in the string
+            if index != -1:
+                book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
+            book = BookListTest.objects.get(title = book_str)
+
+        except BookListTest.DoesNotExist:
+            return
+    
+    # Get question_id
+    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
+
+    # Get student name and id 
+    studen_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
+
+    # Get question text
+    question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
+    
+    # Get page, question, and theme numbers
+    page_num = getPageNum(title)
+    question_num = getQuestionNum(title)
+    theme_num = getThemeNum(title)
+
+    faq_and_answer = FaqAndEstimatedAnswerTest.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first()
+    if faq_and_answer is None:
+        return
+    
+    else:
+        estimated_answer = FaqAndEstimatedAnswerTest.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
+        question_obj = ExtractedQuestionListTest(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
+        question_obj.save()
+
+
+
+
 
 def getAndSaveAtrributes():
    
@@ -320,8 +373,11 @@ def getAndSaveAtrributes():
     question_num = getQuestionNum(title)
     theme_num = getThemeNum(title)
 
+    # Get question_date
+    question_date = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[2]').text[:10]
+
     # Add question to SearchedQuestionListTest Table
-    search = SearchedQuestionListTest(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num)
+    search = SearchedQuestionListTest(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num, date = question_date)
     search.save()
 
     # Check if sum of boolean values is less than 2
@@ -365,6 +421,6 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     browser.quit()
 
 def extractquestions():
-    goToTotalPage()
+    goToWaitingPage()
 
     paging(goingThroughWaitingPageForExtract)

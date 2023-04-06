@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest
+from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest, ExtractedQuestionListTest
 from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
 from datetime import datetime, timedelta
 
@@ -14,12 +14,7 @@ def init(request):
 def booklist(request):
     books = BookListTest.objects.all().order_by('lecture', 'title')
 
-    if request.method == 'POST' and 'delete_book' in request.POST:
-        title = request.POST.get('delete_book')
-        book = BookListTest.objects.filter(title=title).first()
-        if book:
-            book.delete()
-    elif request.method == 'POST':
+    if request.method == 'POST':
         title = request.POST.get('title').strip().lower()
         lecture = request.POST.get('lecture').strip().lower()
         booktype = request.POST.get('book_type').strip().lower()
@@ -151,11 +146,24 @@ def test(request):
     return render(request, 'qa_automate/booklist.html')
 
 def extract(request):
-    if request == 'POST' and 'answerquestions' in request:
+    if request.method == 'POST' and 'answerquestions' in request.POST:
+        # Handle the case when the form with name `answerquestions` is submitted
         pass
-    if request == 'POST' and 'extractquestions' in request:
+        # html에 남아있는 것들 answered question list로 옮기고, 답변 이미 되어서 질문이 없거나, 다른 사람이 답변 중인 경우 그냥 빈 return 던지기
+        # waiting page에서 id로 1개씩 찾아서 해야할듯 (매번 for loop 돌리는 것보다 빠름)
+        # 지금 false로 되어 있는 것들 다 true로 바꾸기
+        
+    if request.method == 'POST' and 'extractquestions' in request.POST:
+        # Handle the case when the form with name `extractquestions` is submitted
         extractquestions()
-    ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)
+    
+    extracted_questions = ExtractedQuestionListTest.objects.filter(done=False)
 
-    return render(request, 'qa_automate/extract.html')
+    ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)
+    context = {
+        'questions': extracted_questions,
+    }
+
+    return render(request, 'qa_automate/extract.html', context)
+
 
