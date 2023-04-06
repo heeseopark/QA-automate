@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest
-from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage
+from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
 from datetime import datetime, timedelta
 
 # Create your views here.
@@ -118,7 +118,7 @@ def faqlist(request):
 
 def estimatedanswer(request, book_title, page, theme, number):
     # Get the matching question object
-    question = SearchedQuestionListTest.objects.get(
+    question = FaqAndEstimatedAnswerTest.objects.get(
         book=book_title, page=page, theme=theme, number=number)
 
     # Check if there's already an estimated answer for the question
@@ -151,5 +151,11 @@ def test(request):
     return render(request, 'qa_automate/booklist.html')
 
 def extract(request):
+    if request == 'POST' and 'answerquestions' in request:
+        pass
+    if request == 'POST' and 'extractquestions' in request:
+        extractquestions()
+    ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)
+
     return render(request, 'qa_automate/extract.html')
 

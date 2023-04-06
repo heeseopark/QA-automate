@@ -264,7 +264,7 @@ def goingThroughTotalPageForSearch():
             current_element_number += 1
 
 
-def goingThroughWaitingPage():
+def goingThroughWaitingPageForExtract():
 
     current_element_number = 1
 
@@ -363,3 +363,8 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     paging(goingThroughTotalPageForSearch)
 
     browser.quit()
+
+def extractquestions():
+    goToTotalPage()
+
+    paging(goingThroughWaitingPageForExtract)

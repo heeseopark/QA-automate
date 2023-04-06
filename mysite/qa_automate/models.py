@@ -29,6 +29,7 @@ class ExtractedQuestionListTest(models.Model): #추출한 모든 답변 가능 �
     page = models.IntegerField(default=0)
     number = models.IntegerField(default=0)
     theme = models.IntegerField(default=0)
+    date = models.DateField()
     #img = models.ImageField()
 
 
