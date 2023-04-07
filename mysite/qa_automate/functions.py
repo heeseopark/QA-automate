@@ -1,4 +1,5 @@
-from .models import BlacklistTest, BookListTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest, AnsweredQuestionListTest, ExtractedQuestionListTest
+from .models import  AnsweredQuestionListTest, ExtractedQuestionListTest
+from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList
 import time
 from selenium import webdriver
 import re
@@ -13,9 +14,9 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 def isInBlackList(text):
     try:
-        blacklist = BlacklistTest.objects.get(student=text)
+        blacklist = BlackList.objects.get(student=text)
         return True
-    except BlacklistTest.DoesNotExist:
+    except BlackList.DoesNotExist:
         return False
     
 def goToWaitingPage():
@@ -255,7 +256,6 @@ def goingThroughTotalPageForSearch():
         getAndSaveAtrributes()
         
         # Go Back to Total Page
-        time.sleep(0.5)
         browser.back()
 
         # Move to the next element
@@ -281,7 +281,6 @@ def goingThroughWaitingPageForExtract():
         checkFaq()
 
         # Go back to waiting page
-        time.sleep(0.5)
         browser.back()
 
         # Move to the next element
@@ -294,11 +293,11 @@ def checkFaq():
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
         lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
         try:
-            book = BookListTest.objects.get(lecture=lecture_str, type='주교재')
+            book = BookList.objects.get(lecture=lecture_str, type='주교재')
             # 부교재 확인하기
             if '워크북' in title or '시냅스' in title:
-                book = BookListTest.objects.get(lecture=lecture_str, type='부교재')
-        except BookListTest.DoesNotExist:
+                book = BookList.objects.get(lecture=lecture_str, type='부교재')
+        except BookList.DoesNotExist:
             return
 
     elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
@@ -307,9 +306,9 @@ def checkFaq():
             index = book_str.rfind('(') # Find the index of the last '(' in the string
             if index != -1:
                 book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
-            book = BookListTest.objects.get(title = book_str)
+            book = BookList.objects.get(title = book_str)
 
-        except BookListTest.DoesNotExist:
+        except BookList.DoesNotExist:
             return
     
     # Get question_id
@@ -326,12 +325,12 @@ def checkFaq():
     question_num = getQuestionNum(title)
     theme_num = getThemeNum(title)
 
-    faq_and_answer = FaqAndEstimatedAnswerTest.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first()
+    faq_and_answer = FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first()
     if faq_and_answer is None:
         return
     
     else:
-        estimated_answer = FaqAndEstimatedAnswerTest.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
+        estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
         question_obj = ExtractedQuestionListTest(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
         question_obj.save()
 
@@ -347,11 +346,11 @@ def getAndSaveAtrributes():
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
         lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
         try:
-            book = BookListTest.objects.get(lecture=lecture_str, type='주교재')
+            book = BookList.objects.get(lecture=lecture_str, type='주교재')
             # 부교재 확인하기
             if '워크북' in title or '시냅스' in title:
-                book = BookListTest.objects.get(lecture=lecture_str, type='부교재')
-        except BookListTest.DoesNotExist:
+                book = BookList.objects.get(lecture=lecture_str, type='부교재')
+        except BookList.DoesNotExist:
             return
 
     elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
@@ -360,9 +359,9 @@ def getAndSaveAtrributes():
             index = book_str.rfind('(') # Find the index of the last '(' in the string
             if index != -1:
                 book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
-            book = BookListTest.objects.get(title = book_str)
+            book = BookList.objects.get(title = book_str)
 
-        except BookListTest.DoesNotExist:
+        except BookList.DoesNotExist:
             return
 
     # Get question_id
@@ -376,8 +375,8 @@ def getAndSaveAtrributes():
     # Get question_date
     question_date = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[2]').text[:10]
 
-    # Add question to SearchedQuestionListTest Table
-    search = SearchedQuestionListTest(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num, date = question_date)
+    # Add question to SearchedQuestionList Table
+    search = SearchedQuestionList(book = book, id = question_id, page = page_num, number = question_num, theme = theme_num, date = question_date)
     search.save()
 
     # Check if sum of boolean values is less than 2
@@ -386,12 +385,12 @@ def getAndSaveAtrributes():
 
     # Check if question attribute already exists in FAQListAndEstimatedAnswer table
     try:
-        faq = FaqAndEstimatedAnswerTest.objects.get(book=book, page=page_num, number=question_num, theme=theme_num )
+        faq = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num )
         faq.count += 1
         faq.save()
-    except FaqAndEstimatedAnswerTest.DoesNotExist:
+    except FaqAndEstimatedAnswer.DoesNotExist:
         # If question attribute does not exist, create a new one
-        faq = FaqAndEstimatedAnswerTest.objects.create(book=book, page=page_num, number=question_num, theme=theme_num, count=1)
+        faq = FaqAndEstimatedAnswer.objects.create(book=book, page=page_num, number=question_num, theme=theme_num, count=1)
     
 
 

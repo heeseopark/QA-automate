@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import BookListTest, BlacklistTest, DateCheckTest, FaqAndEstimatedAnswerTest, SearchedQuestionListTest, ExtractedQuestionListTest
+from .models import ExtractedQuestionListTest
+from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList
 from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
 from datetime import datetime, timedelta
 
@@ -12,13 +13,13 @@ def init(request):
     return render(request, 'qa_automate/init.html')
 
 def booklist(request):
-    books = BookListTest.objects.all().order_by('lecture', 'title')
+    books = BookList.objects.all().order_by('lecture', 'title')
 
     if request.method == 'POST':
         title = request.POST.get('title').strip().lower()
         lecture = request.POST.get('lecture').strip().lower()
         booktype = request.POST.get('book_type').strip().lower()
-        book = BookListTest(title=title, lecture=lecture, type = booktype)
+        book = BookList(title=title, lecture=lecture, type = booktype)
         book.save()
         return HttpResponseRedirect('/qa_automate/booklist/')
     
@@ -31,8 +32,8 @@ def booklist(request):
 
 
 def calendar(request, book_title):
-    book = BookListTest.objects.get(title=book_title)
-    date_checks = DateCheckTest.objects.filter(book=book).order_by('date')
+    book = BookList.objects.get(title=book_title)
+    date_checks = DateCheck.objects.filter(book=book).order_by('date')
 
     if request.method == 'POST':
         startdate_str = request.POST.get('startdate')
@@ -43,13 +44,13 @@ def calendar(request, book_title):
         # DateCheck DB 업데이트
         current_date = startdate
         while current_date <= enddate:
-            if not DateCheckTest.objects.filter(book=book, date=current_date).exists():
-                date_check = DateCheckTest(book=book, date=current_date)
+            if not DateCheck.objects.filter(book=book, date=current_date).exists():
+                date_check = DateCheck(book=book, date=current_date)
                 date_check.save()
             current_date += timedelta(days=1)
 
         # Searched DB, FaQ DB 업데이트
-        lecture_str = str(BookListTest.objects.get(title = book_title).lecture).strip()
+        lecture_str = str(BookList.objects.get(title = book_title).lecture).strip()
         updateSearchedAndFaqTable(startdate_str, enddate_str, lecture_str)
 
 
@@ -61,7 +62,7 @@ def calendar(request, book_title):
 
 def searched(request, book_title):
     book_text = str(book_title).lower().strip()
-    questions = SearchedQuestionListTest.objects.filter(book__title=book_text).order_by('id')
+    questions = SearchedQuestionList.objects.filter(book__title=book_text).order_by('id')
     print(book_title)
     print(book_text)
 
@@ -79,28 +80,28 @@ def searched(request, book_title):
 
 
 def blacklist(request):
-    elements = BlacklistTest.objects.all()
+    elements = BlackList.objects.all()
     if request.method == 'POST':
         student_name_and_id = request.POST.get('student_name_and_id')
-        element = BlacklistTest(student=student_name_and_id)
+        element = BlackList(student=student_name_and_id)
         element.save()
         return HttpResponseRedirect('/qa_automate/blacklist/')
     return render(request, 'qa_automate/blacklist.html', {'elements': elements})
 
 
 def faqlist(request):
-    books = FaqAndEstimatedAnswerTest.objects.values_list('book__title', flat=True).distinct()
+    books = FaqAndEstimatedAnswer.objects.values_list('book__title', flat=True).distinct()
     if request.method == 'GET':
         selected_book = request.GET.get('book')
         if selected_book == '':
-            unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='').order_by('-count')
-            answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='').order_by('-count')
+            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='').order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='').order_by('-count')
         else:
-            unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='', book=selected_book).order_by('-count')
-            answerable_questions = FaqAndEstimatedAnswerTest.objects.filter(book=selected_book).exclude(answer='').order_by('-count')
+            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', book=selected_book).order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswer.objects.filter(book=selected_book).exclude(answer='').order_by('-count')
     else:
-        unanswerable_questions = FaqAndEstimatedAnswerTest.objects.filter(answer='').order_by('-count')
-        answerable_questions = FaqAndEstimatedAnswerTest.objects.exclude(answer='').order_by('-count')
+        unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='').order_by('-count')
+        answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='').order_by('-count')
 
     context = {
         'unanswerable_questions': unanswerable_questions,
@@ -113,15 +114,15 @@ def faqlist(request):
 
 def estimatedanswer(request, book_title, page, theme, number):
     # Get the matching question object
-    question = FaqAndEstimatedAnswerTest.objects.get(
+    question = FaqAndEstimatedAnswer.objects.get(
         book=book_title, page=page, theme=theme, number=number)
 
     # Check if there's already an estimated answer for the question
     try:
-        faq = FaqAndEstimatedAnswerTest.objects.get(
+        faq = FaqAndEstimatedAnswer.objects.get(
             book=book_title, page=page, theme=theme, number=number)
         answer = faq.answer
-    except FaqAndEstimatedAnswerTest.DoesNotExist:
+    except FaqAndEstimatedAnswer.DoesNotExist:
         answer = ''
 
     if request.method == 'POST':
@@ -129,13 +130,13 @@ def estimatedanswer(request, book_title, page, theme, number):
 
         # Check if there's already an estimated answer for the question
         try:
-            faq = FaqAndEstimatedAnswerTest.objects.get(
+            faq = FaqAndEstimatedAnswer.objects.get(
                 book=book_title, page=page, theme=theme, number=number)
             faq.answer = answer
             faq.save()
-        except FaqAndEstimatedAnswerTest.DoesNotExist:
-            book = BookListTest.objects.get(title=book_title)
-            faq = FaqAndEstimatedAnswerTest(
+        except FaqAndEstimatedAnswer.DoesNotExist:
+            book = BookList.objects.get(title=book_title)
+            faq = FaqAndEstimatedAnswer(
                 book=book, page=page, theme=theme, number=number, answer=answer)
             faq.save()
 
