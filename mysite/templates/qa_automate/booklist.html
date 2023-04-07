@@ -35,7 +35,9 @@
                     <td>{{ book.lecture }}</td>
                     <td>{{ book.title }}</td>
                     <td>{{ book.type }}</td>
+                    {% if book.type == '주교재' %}
                     <td><button><a href="{% url 'qa_automate:calendar' book_title=book.title %}">달력으로 가기</a></button></td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>

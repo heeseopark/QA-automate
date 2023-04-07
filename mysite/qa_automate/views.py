@@ -53,10 +53,11 @@ def calendar(request, book_title):
         lecture_str = str(BookList.objects.get(title = book_title).lecture).strip()
         updateSearchedAndFaqTable(startdate_str, enddate_str, lecture_str)
 
-
+    lecture_str = str(BookList.objects.get(title = book_title).lecture).strip()
     context = {
-        'book': book_title,
-        'searched_dates': date_checks
+        'lecture': lecture_str,
+        'searched_dates': date_checks,
+        'book' : book
     }
     return render(request, 'qa_automate/calendar.html', context)
 

@@ -188,7 +188,7 @@ def paging(function):
                     wait = WebDriverWait(browser, 1)
                     wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number}]'))).click()
                     # Do something with current_element
-                    print(f'in page {i}')
+                    print(f'in page {page_number}')
                     function()
                     page_number += 1
                 except TimeoutException:
