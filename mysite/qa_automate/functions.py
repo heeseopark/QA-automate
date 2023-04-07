@@ -173,17 +173,20 @@ def paging(function):
                 browser.implicitly_wait(10)
                 print(f'in page {i}')
                 function()
-            browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
-            browser.implicitly_wait(10)
+            try:
+                browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
+                browser.implicitly_wait(10)
+            except TimeoutException:
+                break
         except TimeoutException:
         # If the element doesn't exist, just increment through the pages
             print('in page 1')
             function()
-            page_number = 1
+            page_number = 2
             while True:
                 try:
                     wait = WebDriverWait(browser, 1)
-                    wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number+1}]'))).click()
+                    wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number}]'))).click()
                     # Do something with current_element
                     print(f'in page {i}')
                     function()
@@ -317,6 +320,10 @@ def checkFaq():
     # Get student name and id 
     studen_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
 
+    # 교재 없는 경우 그냥 빈 return 던지기
+    # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
+
+    # 키워드 있는지 확인해야함, 우선순위 결정해야하는데 -> prioritiy column 추가했음 (migrate 추가로 할 필요 없음). render 할 때 order_by('priority') 이용하기
     # Get question text
     question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
     
@@ -331,7 +338,7 @@ def checkFaq():
     
     else:
         estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedQuestionListTest(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
+        question_obj = ExtractedQuestionListTest(questionid = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
         question_obj.save()
 
 

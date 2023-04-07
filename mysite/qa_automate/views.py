@@ -82,7 +82,7 @@ def searched(request, book_title):
 def blacklist(request):
     elements = BlackList.objects.all()
     if request.method == 'POST':
-        student_name_and_id = request.POST.get('student_name_and_id')
+        student_name_and_id = request.POST.get('student_name_and_id').strip()
         element = BlackList(student=student_name_and_id)
         element.save()
         return HttpResponseRedirect('/qa_automate/blacklist/')
@@ -127,7 +127,7 @@ def estimatedanswer(request, book_title, page, theme, number):
 
     if request.method == 'POST':
         answer = request.POST['answer']
-
+        # 키워드 받아서 저장하기
         # Check if there's already an estimated answer for the question
         try:
             faq = FaqAndEstimatedAnswer.objects.get(
@@ -158,6 +158,13 @@ def extract(request):
         # Handle the case when the form with name `extractquestions` is submitted
         extractquestions()
     
+
+    if request.method == 'POST' and 'deletequestion' in request.POST:
+        print(request)
+        id = int(request.POST.get('question_id'))
+        question = ExtractedQuestionListTest.objects.get(id = id)
+        question.delete()
+
     extracted_questions = ExtractedQuestionListTest.objects.filter(done=False)
 
     ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)

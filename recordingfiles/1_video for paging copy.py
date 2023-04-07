@@ -100,19 +100,22 @@ def paging():
                 browser.implicitly_wait(10)
                 print(f'in page {i}')
 
-            browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
-            browser.implicitly_wait(10)
+            try:
+                browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
+                browser.implicitly_wait(10)
+            except TimeoutException:
+                break
         except TimeoutException:
         # If the element doesn't exist, just increment through the pages
             print('in page 1')
 
-            page_number = 1
+            page_number = 2
             while True:
                 try:
                     wait = WebDriverWait(browser, 1)
-                    wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number+1}]'))).click()
+                    wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number}]'))).click()
                     # Do something with current_element
-                    print(f'in page {i}')
+                    print(f'in page {page_number}')
 
                     page_number += 1
                 except TimeoutException:
@@ -175,4 +178,4 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     
     paging()
 
-updateSearchedAndFaqTable('2023-03-01', '2023-03-10', '수학의 시작, 시발점 - 수학l')
+updateSearchedAndFaqTable('2023-03-01', '2023-03-02', '수학의 시작, 시발점 - 수학l')

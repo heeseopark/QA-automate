@@ -25,6 +25,12 @@
 
 	<form method="POST">
 		{% csrf_token %}
+		<label for="keyword1">강좌명:</label>
+        <input type="text" name="keyword1" id="keyword1">
+        <label for="keyword2">교재명:</label>
+        <input type="text" name="keyword2" id="keyword2">
+		<label for="keyword3">교재명:</label>
+        <input type="text" name="keyword3" id="keyword3">
 		<textarea name="answer" id="answer" rows="20" cols="50">{{ answer }}</textarea>
 		<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>
 	</form>

@@ -2,51 +2,80 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datepicker.css' %}">
 	<title>Extract Page</title>
+	<style>
+		td {
+			vertical-align: top;
+		}
+
+		.question-container {
+			border: 1px solid black;
+			margin-bottom: 10px;
+		}
+		.answer-container {
+			border: 1px solid black;
+			margin-bottom: 10px;
+		}
+		.qa-info {
+			background-color: #f5f5f5;
+		}
+	</style>
 </head>
 <body>
-	<form method = 'POST'>{% csrf_token %}<button type="submit" id="search", name = 'extractquestions'>답변 추출하기</button></form>
+	<form method='POST'>{% csrf_token %}
+		<button type="submit" id="search" name='extractquestions'>답변 추출하기</button>
+	</form>
 	<table>
 		<thead>
-		  <tr>
-			<th>Question and Answer</th>
-		  </tr>
 		</thead>
 		<tbody>
-		  {% for question in questions %}
 			<tr>
-			  <td>
-				<div class="qa-container">
-				  <div class="question-container">
-					<p>{{ question.question }}</p>
-				  </div>
-				  <div class="answer-container">
-					<p>{{ question.answer }}</p>
-				  </div>
-				  <div class="qa-actions">
-					<button onclick="deleteQuestion(this)">Delete</button>
-				  </div>
-				  <div class="qa-info">
-					<p><strong>Book:</strong> {{ question.book }}</p>
-					<p><strong>Page:</strong> {{ question.page }}</p>
-					<p><strong>Question Number:</strong> {{ question.number }}</p>
-					<p><strong>Theme:</strong> {{ question.theme }}</p>
-				  </div>
-				</div>
-			  </td>
+			{% for question in questions %}
+
+				<td>
+					<table class="qa-container" width="450">
+						<tr class="qa-info" height="100">
+							<td width="100%">
+								<p><strong>교재명:</strong> {{ question.book.title }}</p>
+								<p><strong>페이지 번호:</strong> {{ question.page }}</p>
+								<p><strong>질문 번호:</strong> {{ question.number }}</p>
+								<p><strong>Theme:</strong> {{ question.theme }}</p>
+							</td>
+						</tr>
+						<tr class="question-container" height="50">
+							<td width="100%">
+								<p>{{ question.question|linebreaksbr }}</p>
+							</td>
+						</tr>
+						<tr class="answer-container" height="50">
+							<td width="100%">
+								<p>{{ question.answer|linebreaksbr }}</p>
+							</td>
+						</tr>
+						<tr class="qa-actions" height="25">
+							<td width="100%">
+								<form method="POST">
+									{% csrf_token %}
+									<input type="hidden" name="question_id" value="{{ question.id }}">
+									<button type="submit" name="deletequestion" onclick="deleteQuestion(this)">Delete</button>
+								</form>
+							</td>
+						</tr>
+					</table>
+				</td>
+
+			{% endfor %}
 			</tr>
-		  {% endfor %}
 		</tbody>
-	  </table>
-	  
-	  <script>
+	</table>
+	<form method='POST'>{% csrf_token %}
+		<button type="submit" id="submit" name='answerquestions'>일괄 답변하기</button>
+	</form>
+	<script>
 		function deleteQuestion(button) {
-		  const row = button.parentNode.parentNode.parentNode;
-		  row.parentNode.removeChild(row);
+			const qaContainer = button.closest('.qa-container');
+			qaContainer.parentNode.removeChild(qaContainer);
 		}
-	  </script>
-	  
+	</script>	  
 </body>
 </html>

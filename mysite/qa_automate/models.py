@@ -38,19 +38,18 @@ class FaqAndEstimatedAnswerTest(models.Model): #FAQ와 예상 답변 저장
 class ExtractedQuestionListTest(models.Model): #추출한 모든 답변 가능 질문들 저장
     id = models.IntegerField(primary_key=True)
     book = models.ForeignKey(BookListTest, on_delete=models.CASCADE, to_field='title')
-    student = models.CharField(max_length=50)
     page = models.IntegerField(default=0)
     number = models.IntegerField(default=0)
     theme = models.IntegerField(default=0)
     question = models.TextField()
     answer = models.TextField()
+    priority = models.IntegerField()
     done = models.BooleanField()
     #img = models.ImageField()
 
 class AnsweredQuestionListTest(models.Model): #답변 가능 질문 추출 후 실제 답변한 질문들 저장
     id = models.IntegerField(primary_key=True)
     book = models.ForeignKey(BookListTest, on_delete=models.CASCADE, to_field='title')
-    student = models.CharField(max_length=50)
     page = models.IntegerField(default=0)
     number = models.IntegerField(default=0)
     theme = models.IntegerField(default=0)
