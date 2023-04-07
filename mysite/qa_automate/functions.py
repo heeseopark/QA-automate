@@ -430,3 +430,14 @@ def extractquestions():
     goToWaitingPage()
 
     paging(goingThroughWaitingPageForExtract)
+
+
+def answer():
+    goToWaitingPage()
+
+    #answer_count = 1
+    #for obj in AnsweredQuestionListTest.objects.filter(done=False):
+
+
+        #답 없으면 pass, 
+        # do something with obj

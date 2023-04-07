@@ -55,5 +55,6 @@ class AnsweredQuestionListTest(models.Model): #답변 가능 질문 추출 후 �
     theme = models.IntegerField(default=0)
     question = models.TextField()  
     answer = models.TextField(null=False)
+    done = models.BooleanField()
     #img = models.ImageField()
 
