@@ -5,6 +5,7 @@
 </head>
 <body>
     <h1>교재명: {{book}}</h1>
+    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
     <form method="get">
         {% csrf_token %}
         <label for="page_num">페이지 번호:</label>

@@ -5,6 +5,7 @@
   </head>
   <body>
     <h1>강좌명: {{ lecture }}</h1>
+    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
 
     <form method="POST">
       {% csrf_token %}
