@@ -409,11 +409,7 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     select = Select(browser.find_element(By.ID, 'sel_chr_cd'))
     browser.implicitly_wait(10)
     time.sleep(1)
-    title = str(title_text).lower()
-    options = [option.text.lower() for option in select.options] # convert all options to lowercase
-    if title in options:
-        index = options.index(title)
-        select.select_by_index(index)
+    select.select_by_visible_text(title_text)
 
     browser.find_element(By.ID, 'searchSdt').clear()
     browser.find_element(By.ID, 'searchSdt').send_keys(start_text)
@@ -445,5 +441,3 @@ def answer():
 
         #답 없으면 pass, 
         # do something with obj
-
-# lower 그냥 다 없애자. -> table cell 찾아서 바꾸기

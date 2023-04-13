@@ -16,9 +16,9 @@ def booklist(request):
     books = BookList.objects.all().order_by('lecture', 'title')
 
     if request.method == 'POST':
-        title = request.POST.get('title').strip().lower()
-        lecture = request.POST.get('lecture').strip().lower()
-        booktype = request.POST.get('book_type').strip().lower()
+        title = request.POST.get('title').strip()
+        lecture = request.POST.get('lecture').strip()
+        booktype = request.POST.get('book_type').strip()
         book = BookList(title=title, lecture=lecture, type = booktype)
         book.save()
         return HttpResponseRedirect('/qa_automate/booklist/')
@@ -62,7 +62,7 @@ def calendar(request, book_title):
     return render(request, 'qa_automate/calendar.html', context)
 
 def searched(request, book_title):
-    book_text = str(book_title).lower().strip()
+    book_text = str(book_title).strip()
     questions = SearchedQuestionList.objects.filter(book__title=book_text).order_by('id')
     print(book_title)
     print(book_text)
