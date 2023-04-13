@@ -160,7 +160,11 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     select = Select(browser.find_element(By.ID, 'sel_chr_cd'))
     browser.implicitly_wait(10)
     time.sleep(1)
-    select.select_by_visible_text(title_text)
+    title = str(title_text).lower()
+    options = [option.text.lower() for option in select.options] # convert all options to lowercase
+    if title in options:
+        index = options.index(title)
+        select.select_by_index(index)   
 
 
     browser.find_element(By.ID, 'searchSdt').clear()
@@ -176,6 +180,5 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
     print('click search button')
     
-    paging()
 
 updateSearchedAndFaqTable('2023-03-01', '2023-03-02', '수학의 시작, 시발점 - 수학l')
