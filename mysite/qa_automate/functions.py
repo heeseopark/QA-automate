@@ -162,13 +162,12 @@ def goToTotalPage():
 # paging 함수 맞게 작동하는지 체크해야함
 def paging(function):
     while True:
-        # Check if the element with id 'nextpage' exists
         try:
             wait = WebDriverWait(browser, 2)
             wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[3]/div/a[11]')))
             print('in page 1')
             function()
-            for i in range(2,11):
+            for i in range(2, 11):
                 browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]').click()
                 browser.implicitly_wait(10)
                 print(f'in page {i}')
@@ -177,9 +176,8 @@ def paging(function):
                 browser.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/a[11]').click()
                 browser.implicitly_wait(10)
             except TimeoutException:
-                break
+                return
         except TimeoutException:
-        # If the element doesn't exist, just increment through the pages
             print('in page 1')
             function()
             page_number = 2
@@ -187,13 +185,27 @@ def paging(function):
                 try:
                     wait = WebDriverWait(browser, 1)
                     wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number}]'))).click()
+                    browser.implicitly_wait(10)
+
+                    # Check if next page is available
+                    try:
+                        browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{page_number + 1}]')
+                    except NoSuchElementException:
+                        # If the next page is not available, execute the function and exit the loop
+                        print(f'in page {page_number}')
+                        function()
+                        return
+
+                except TimeoutException:
+                    return
+
+                else:
                     # Do something with current_element
                     print(f'in page {page_number}')
                     function()
                     page_number += 1
-                except TimeoutException:
-                    break
-            break
+
+
 
 def getPageNum(text):
     patterns = [
@@ -254,7 +266,7 @@ def goingThroughTotalPageForSearch():
             wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
         except TimeoutException:
             break
-
+                
         # Do something with the current element
         getAndSaveAtrributes()
         
