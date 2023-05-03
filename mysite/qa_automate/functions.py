@@ -1,5 +1,5 @@
-from .models import  AnsweredQuestionListTest, ExtractedQuestionListTest
-from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList
+
+from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedQuestionList
 import time
 from selenium import webdriver
 import re
@@ -304,6 +304,7 @@ def goingThroughWaitingPageForExtract():
 def checkFaq():
     # Get question title text
     title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+    global book
 
     if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
         lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
@@ -333,11 +334,21 @@ def checkFaq():
     studen_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
 
     # 교재 없는 경우 그냥 빈 return 던지기
+    book_purchase = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text
+    if book_purchase == 'N':
+        return
+    
+    book_purchase_2 = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[4]/a').text
+    if 'N' in book_purchase_2:
+        return    
+    
     # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
 
     # 키워드 있는지 확인해야함, 우선순위 결정해야하는데 -> prioritiy column 추가했음 (migrate 추가로 할 필요 없음). render 할 때 order_by('priority') 이용하기
     # Get question text
     question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
+
+    
     
     # Get page, question, and theme numbers
     page_num = getPageNum(title)
@@ -350,11 +361,8 @@ def checkFaq():
     
     else:
         estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedQuestionListTest(questionid = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
+        question_obj = ExtractedQuestionList(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
         question_obj.save()
-
-
-
 
 
 def getAndSaveAtrributes():
