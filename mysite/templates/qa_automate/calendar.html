@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-  </head>
-  <body>
-    <h1>강좌명: {{ lecture }}</h1>
-    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
 
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+</head>
+
+<body>
+  <div class="container">
+    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+    <h1>강좌명: {{ lecture }}</h1>
     <form method="POST">
       {% csrf_token %}
       <label for="startdate">조사 시작 날짜:</label>
@@ -21,7 +26,9 @@
     <button><a href="{% url 'qa_automate:searched' book_title=book.title %}">조사된 질문 보러가기</a></button>
 
     {% for date in searched_dates %}
-        <p>{{ date.date }}</p>
+    <p>{{ date.date }}</p>
     {% endfor %}
-  </body>
+  </div>
+</body>
+
 </html>

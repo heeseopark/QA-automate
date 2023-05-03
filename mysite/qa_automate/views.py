@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedQuestionList
+from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
 from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
 from datetime import datetime, timedelta
 
@@ -162,10 +162,10 @@ def extract(request):
     if request.method == 'POST' and 'deletequestion' in request.POST:
         print(request)
         id = int(request.POST.get('question_id'))
-        question = ExtractedQuestionList.objects.get(id = id)
+        question = ExtractedAndAnsweredQuestionList.objects.get(id = id)
         question.delete()
 
-    extracted_questions = ExtractedQuestionList.objects.filter(done=False)
+    extracted_questions = ExtractedAndAnsweredQuestionList.objects.filter(done=False)
 
     ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)
     context = {

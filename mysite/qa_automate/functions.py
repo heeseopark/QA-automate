@@ -1,5 +1,5 @@
 
-from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedQuestionList
+from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
 import time
 from selenium import webdriver
 import re
@@ -205,8 +205,6 @@ def paging(function):
                     function()
                     page_number += 1
 
-
-
 def getPageNum(text):
     patterns = [
         r'\b[pP](?:[gG])?\.?\s?(\d+)\s*',
@@ -279,7 +277,6 @@ def goingThroughTotalPageForSearch():
         else:
             current_element_number += 1
 
-
 def goingThroughWaitingPageForExtract():
 
     current_element_number = 1
@@ -348,8 +345,6 @@ def checkFaq():
     # Get question text
     question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
 
-    
-    
     # Get page, question, and theme numbers
     page_num = getPageNum(title)
     question_num = getQuestionNum(title)
@@ -361,7 +356,7 @@ def checkFaq():
     
     else:
         estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedQuestionList(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
+        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
         question_obj.save()
 
 
@@ -419,8 +414,6 @@ def getAndSaveAtrributes():
         # If question attribute does not exist, create a new one
         faq = FaqAndEstimatedAnswer.objects.create(book=book, page=page_num, number=question_num, theme=theme_num, count=1)
     
-
-
 def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
     goToTotalPage()
@@ -450,7 +443,6 @@ def extractquestions():
     goToWaitingPage()
 
     paging(goingThroughWaitingPageForExtract)
-
 
 def answer():
     goToWaitingPage()

@@ -2,49 +2,53 @@
 <html>
 <head>
     <title>교재 목록</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
 </head>
 <body>
-    <h1>책 추가하기</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="lecture">강좌명:</label>
-        <input type="text" name="lecture" id="lecture">
-        <label for="title">교재명:</label>
-        <input type="text" name="title" id="title">
-        <label for="title">교재 종류:</label>
-        <select name="book_type" id="book_type">
-            <option value="주교재">주교재</option>
-            <option value="부교재">부교재</option>
-        </select>
-        <input type="submit" value="책 추가하기">
-    </form>
+    <div class="container">
+        <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+        <h1>책 추가하기</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="lecture">강좌명:</label>
+            <input type="text" name="lecture" id="lecture">
+            <label for="title">교재명:</label>
+            <input type="text" name="title" id="title">
+            <label for="title">교재 종류:</label>
+            <select name="book_type" id="book_type">
+                <option value="주교재">주교재</option>
+                <option value="부교재">부교재</option>
+            </select>
+            <input type="submit" value="책 추가하기">
+        </form>
 
-    <h1>교재 목록</h1>
-    {% if books %}
-        <table>
-            <thead>
-                <tr>
-                    <th width="350">강좌 제목</th>
-                    <th width="400">교재 제목</th>
-                    <th width="200">교재 종류</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for book in books %}
-                <tr>
-                    <td>{{ book.lecture }}</td>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.type }}</td>
-                    {% if book.type == '주교재' %}
-                    <td><button><a href="{% url 'qa_automate:calendar' book_title=book.title %}">달력으로 가기</a></button></td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>책이 없습니다</p>
-    {% endif %}
-    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+        <h1>교재 목록</h1>
+        {% if books %}
+            <table>
+                <thead>
+                    <tr>
+                        <th width="350">강좌 제목</th>
+                        <th width="400">교재 제목</th>
+                        <th width="200">교재 종류</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr>
+                        <td>{{ book.lecture }}</td>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.type }}</td>
+                        {% if book.type == '주교재' %}
+                        <td><button><a href="{% url 'qa_automate:calendar' book_title=book.title %}">달력으로 가기</a></button></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>책이 없습니다</p>
+        {% endif %}
+    </div>
 </body>
 </html>

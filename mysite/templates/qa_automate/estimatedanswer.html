@@ -1,39 +1,46 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>예상 답변 작성</title>
+	{% load static %}
+	<link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
 </head>
-<body>
-	<button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
-	<table>
-		<thead>
-			<tr>
-				<th width = "350">교재명</th>
-				<th width = "75">페이지</th>
-				<th width = "75">질문 번호</th>
-				<th width = "75">Theme</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td>{{ question.book.title }}</td>
-				<td>{{ question.page }}</td>
-				<td>{{ question.number }}</td>
-				<td>{{ question.theme }}</td>
-			</tr>
-		</tbody>
-	</table>
 
-	<form method="POST">
-		{% csrf_token %}
-		<label for="keyword1">강좌명:</label>
-        <input type="text" name="keyword1" id="keyword1">
-        <label for="keyword2">교재명:</label>
-        <input type="text" name="keyword2" id="keyword2">
-		<label for="keyword3">교재명:</label>
-        <input type="text" name="keyword3" id="keyword3">
-		<textarea name="answer" id="answer" rows="20" cols="50">{{ answer }}</textarea>
-		<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>
-	</form>
+<body>
+	<div class="container">
+		<button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+		<table>
+			<thead>
+				<tr>
+					<th width="350">교재명</th>
+					<th width="75">페이지</th>
+					<th width="75">질문 번호</th>
+					<th width="75">Theme</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>{{ question.book.title }}</td>
+					<td>{{ question.page }}</td>
+					<td>{{ question.number }}</td>
+					<td>{{ question.theme }}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<form method="POST">
+			{% csrf_token %}
+			<label for="keyword1">강좌명:</label>
+			<input type="text" name="keyword1" id="keyword1">
+			<label for="keyword2">교재명:</label>
+			<input type="text" name="keyword2" id="keyword2">
+			<label for="keyword3">교재명:</label>
+			<input type="text" name="keyword3" id="keyword3">
+			<textarea name="answer" id="answer" rows="20" cols="50">{{ answer }}</textarea>
+			<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>
+		</form>
+	</div>
 </body>
+
 </html>

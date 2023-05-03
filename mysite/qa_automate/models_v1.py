@@ -30,12 +30,10 @@ class FaqAndEstimatedAnswer(models.Model): #FAQ와 예상 답변 저장
     number = models.IntegerField(default=0)
     theme = models.IntegerField(default=0)
     count = models.IntegerField(default=1)
-    keyword1 = models.CharField(max_length=20, null=True)
-    keyword2 = models.CharField(max_length=20, null=True)
-    keyword3 = models.CharField(max_length=20, null=True)
+    keywords = models.CharField(max_length=200, null=True)
     answer = models.TextField(default='') 
 
-class ExtractedQuestionList(models.Model): #추출한 모든 답변 가능 질문들 저장
+class ExtractedAndAnsweredQuestionList(models.Model): #추출한 모든 답변 가능 질문들 저장
     id = models.IntegerField(primary_key=True)
     book = models.ForeignKey(BookList, on_delete=models.CASCADE, to_field='title')
     student = models.CharField(max_length=50)
@@ -46,15 +44,3 @@ class ExtractedQuestionList(models.Model): #추출한 모든 답변 가능 질�
     answer = models.TextField()
     done = models.BooleanField()
     #img = models.ImageField()
-
-class AnsweredQuestionList(models.Model): #답변 가능 질문 추출 후 실제 답변한 질문들 저장
-    id = models.IntegerField(primary_key=True)
-    book = models.ForeignKey(BookList, on_delete=models.CASCADE, to_field='title')
-    student = models.CharField(max_length=50)
-    page = models.IntegerField(default=0)
-    number = models.IntegerField(default=0)
-    theme = models.IntegerField(default=0)
-    question = models.TextField()  
-    answer = models.TextField(null=False)
-    #img = models.ImageField()
-

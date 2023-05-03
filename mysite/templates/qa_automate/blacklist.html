@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>답변 금지 학생 목록</title>
-  </head>
-  <body>
+
+<head>
+  <title>답변 금지 학생 목록</title>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+</head>
+
+<body>
+  <div class="container">
     <h1>답변 금지 학생 목록</h1>
     <form method="post">
       {% csrf_token %}
@@ -14,10 +19,11 @@
     </form>
     <ul>
       {% for element in elements %}
-        <li>{{ element.student }}</li>
+      <li>{{ element.student }}</li>
       {% endfor %}
     </ul>
     <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+  </div>
+</body>
 
-  </body>
 </html>

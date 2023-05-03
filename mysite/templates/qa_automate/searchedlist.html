@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>조사된 질문 목록</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
 </head>
-<body>
-    <h1>교재명: {{book}}</h1>
-    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
-    <form method="get">
-        {% csrf_token %}
-        <label for="page_num">페이지 번호:</label>
-        <input type="text" name="page_num" id="page_num">
-        <label for="theme_num">테마 번호:</label>
-        <input type="text" name="theme_num" id="theme_num">
-        <label for="question_num">질문 번호:</label>
-        <input type="text" name="question_num" id="question_num">
-        <input type="submit" value="필터 적용">
-    </form>
 
-    <table>
-        <thead>
-            <tr>
-                <th width="200">고유번호</th>
-                <th width="100">페이지</th>
-                <th width="100">Theme</th>
-                <th width="100">질문번호</th>
-                <th width="150">질문날짜</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for question in questions %}
+<body>
+    <div class="container">
+        <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+        <h1>교재명: {{book}}</h1>
+        <form method="get">
+            {% csrf_token %}
+            <label for="page_num">페이지 번호:</label>
+            <input type="text" name="page_num" id="page_num">
+            <label for="theme_num">테마 번호:</label>
+            <input type="text" name="theme_num" id="theme_num">
+            <label for="question_num">질문 번호:</label>
+            <input type="text" name="question_num" id="question_num">
+            <input type="submit" value="필터 적용">
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th width="200">고유번호</th>
+                    <th width="100">페이지</th>
+                    <th width="100">Theme</th>
+                    <th width="100">질문번호</th>
+                    <th width="150">질문날짜</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in questions %}
                 <tr>
                     <td>{{ question.id }}</td>
                     <td>{{ question.page }}</td>
@@ -36,8 +41,10 @@
                     <td>{{ question.number }}</td>
                     <td>{{ question.date }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
+
 </html>
