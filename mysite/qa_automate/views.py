@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
-from .functions import isInBlackList, goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
+from .functions import goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
 from datetime import datetime, timedelta
 
 # Create your views here.

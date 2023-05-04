@@ -87,7 +87,7 @@ td {
 
 button,
 input[type="submit"] {
-    background-color: #4CAF50;
+    background: radial-gradient(#4CAF50, #000);
     color: white;
     border: none;
     cursor: pointer;
@@ -99,7 +99,7 @@ input[type="submit"] {
 
 button:hover,
 input[type="submit"]:hover {
-    background-color: #45a049;
+    background: radial-gradient(#45a049, #000);
     transform: scale(1.05); /* Increase the scale value to 1.05 */
 }
 

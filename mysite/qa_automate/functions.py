@@ -12,12 +12,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
-def isInBlackList(text):
-    try:
-        blacklist = BlackList.objects.get(student=text)
-        return True
-    except BlackList.DoesNotExist:
-        return False
     
 def goToWaitingPage():
     
@@ -328,7 +322,7 @@ def checkFaq():
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
 
     # Get student name and id 
-    studen_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
+    student_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
 
     # 교재 없는 경우 그냥 빈 return 던지기
     book_purchase = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text
@@ -340,6 +334,8 @@ def checkFaq():
         return    
     
     # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
+    if student_name_and_id in BlackList.objects.all():
+        return
 
     # 키워드 있는지 확인해야함, 우선순위 결정해야하는데 -> prioritiy column 추가했음 (migrate 추가로 할 필요 없음). render 할 때 order_by('priority') 이용하기
     keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
@@ -352,7 +348,7 @@ def checkFaq():
     question_num = getQuestionNum(title)
     theme_num = getThemeNum(title)
 
-    faq_and_answer = FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first()
+    faq_and_answer = FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first() # answer가 빈칸인 경우에 빈 return 던지기
     if faq_and_answer is None:
         return
     
@@ -362,7 +358,7 @@ def checkFaq():
             if keyword in question_text:
                 priority += 1
         estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
+        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
         question_obj.save()
 
 
@@ -454,8 +450,29 @@ def answer():
     goToWaitingPage()
 
     #answer_count = 1
-    #for obj in AnsweredQuestionListTest.objects.filter(done=False):
+    for question in ExtractedAndAnsweredQuestionList.objects.filter(done=False):
+        id = question.id
 
 
-        #답 없으면 pass, 
-        # do something with obj
+        # id send key 보내기
+
+        #if id에 대한 질문 없음
+            # 해당 id 질문 db에서 지우기
+            #pass
+
+        # 질문 클릭
+
+        # 찜하기 클릭
+
+        # if 다른 사람이 답변 중
+            # 해당 id 질문 지우기
+            #pass
+
+        # '저장되었습니다.' alert 처리하기
+        # 답변하기
+        # 해당 질문 done column True로 바꾸기
+        answer = question.answer
+
+        # 답변하기 버튼 누르기
+        # '답변되었습니다.' alert 처리하기
+
