@@ -342,6 +342,8 @@ def checkFaq():
     # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
 
     # 키워드 있는지 확인해야함, 우선순위 결정해야하는데 -> prioritiy column 추가했음 (migrate 추가로 할 필요 없음). render 할 때 order_by('priority') 이용하기
+    keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
+    keywords_list = keywords_text.strip().split(',')
     # Get question text
     question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
 
@@ -355,8 +357,12 @@ def checkFaq():
         return
     
     else:
+        priority = 0
+        for keyword in keywords_list:
+            if keyword in question_text:
+                priority += 1
         estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False)
+        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = studen_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
         question_obj.save()
 
 

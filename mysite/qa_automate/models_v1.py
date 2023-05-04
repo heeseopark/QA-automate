@@ -43,4 +43,5 @@ class ExtractedAndAnsweredQuestionList(models.Model): #추출한 모든 답변 �
     question = models.TextField()
     answer = models.TextField()
     done = models.BooleanField()
+    priority = models.IntegerField(default=0)
     #img = models.ImageField()

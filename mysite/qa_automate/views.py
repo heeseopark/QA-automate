@@ -94,13 +94,13 @@ def faqlist(request):
     if request.method == 'GET':
         selected_book = request.GET.get('book')
         if selected_book == '':
-            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).order_by('-count')
+            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).exclude(page=0).order_by('-count')
             answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='', count__gt=10).order_by('-count')
         else:
-            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', book=selected_book, count__gt=10).order_by('-count')
+            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', book=selected_book, count__gt=10).exclude(page=0).order_by('-count')
             answerable_questions = FaqAndEstimatedAnswer.objects.filter(book=selected_book, count__gt=10).exclude(answer='').order_by('-count')
     else:
-        unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).order_by('-count')
+        unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).exclude(page=0).order_by('-count')
         answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='', count__gt=10).order_by('-count')
 
     context = {
@@ -165,7 +165,7 @@ def extract(request):
         question = ExtractedAndAnsweredQuestionList.objects.get(id = id)
         question.delete()
 
-    extracted_questions = ExtractedAndAnsweredQuestionList.objects.filter(done=False)
+    extracted_questions = ExtractedAndAnsweredQuestionList.objects.filter(done=False).order_by('priority')
 
     ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)
     context = {
