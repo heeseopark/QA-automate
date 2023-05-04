@@ -12,7 +12,7 @@ def init(request):
     return render(request, 'qa_automate/init.html')
 
 def booklist(request):
-    books = BookList.objects.all().order_by('lecture', 'title')
+    books = BookList.objects.all().order_by('title')
 
     if request.method == 'POST':
         title = request.POST.get('title').strip()
@@ -94,14 +94,14 @@ def faqlist(request):
     if request.method == 'GET':
         selected_book = request.GET.get('book')
         if selected_book == '':
-            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='').order_by('-count')
-            answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='').order_by('-count')
+            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='', count__gt=10).order_by('-count')
         else:
-            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', book=selected_book).order_by('-count')
-            answerable_questions = FaqAndEstimatedAnswer.objects.filter(book=selected_book).exclude(answer='').order_by('-count')
+            unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', book=selected_book, count__gt=10).order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswer.objects.filter(book=selected_book, count__gt=10).exclude(answer='').order_by('-count')
     else:
-        unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='').order_by('-count')
-        answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='').order_by('-count')
+        unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).order_by('-count')
+        answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='', count__gt=10).order_by('-count')
 
     context = {
         'unanswerable_questions': unanswerable_questions,

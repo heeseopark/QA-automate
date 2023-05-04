@@ -1,8 +1,14 @@
 /* main.css */
 
 /* General styles */
+
+@font-face {
+    font-family: "NanumGothic";
+    src: url("./font/nanum-barun-gothic/NanumBarunGothic.otf") format("opentype");
+  }
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'NanumGothic', 'Calibri';
     line-height: 1.6;
 }
 
@@ -40,8 +46,7 @@ table {
     margin-bottom: 20px;
 }
 
-th,
-td {
+th {
     padding: 10px;
     text-align: left;
     border: 1px solid #ddd;
@@ -64,6 +69,22 @@ tr:hover td {
     background-color: #e8e8e8;
 }
 
+td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+    vertical-align: top;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s; /* Add a transition effect for the transform property */
+}
+
+.booklist-container td:hover {
+    background-color: #e8e8e8;
+    transform: scale(1.05); /* Increase the scale value to 1.05 */
+    cursor: pointer;
+}
+
+
 button,
 input[type="submit"] {
     background-color: #4CAF50;
@@ -72,13 +93,14 @@ input[type="submit"] {
     cursor: pointer;
     padding: 8px 16px;
     margin-top: 5px;
-    border-radius: 4px; /* Add rounded corners to buttons */
-    transition: background-color 0.3s; /* Add a transition effect */
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s; /* Add a transition effect for the transform property */
 }
 
 button:hover,
 input[type="submit"]:hover {
     background-color: #45a049;
+    transform: scale(1.05); /* Increase the scale value to 1.05 */
 }
 
 button a,
@@ -93,7 +115,7 @@ a {
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
     transition: color 0.3s; /* Add a transition effect */
 }
 
@@ -102,6 +124,15 @@ a:hover {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
+}
+
+ul, ol {
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
 }
 
 /* Specific styles for your HTML elements */

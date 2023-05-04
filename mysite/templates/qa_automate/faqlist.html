@@ -21,7 +21,7 @@
             <input type="submit" value="검색">
         </form>
 
-        <table>
+        <table class="faq-container">
             <tbody>
                 <tr>
                     <td valign="top">
@@ -60,7 +60,6 @@
                                     <th width="350">교재명</th>
                                     <th width="75">페이지</th>
                                     <th width="75">질문 번호</th>
-                                    <th width="75">Count</th>
                                     <th width="200">예상 답변 페이지 가기</th>
                                 </tr>
                             </thead>
@@ -70,7 +69,6 @@
                                     <td>{{ question.book.title }}</td>
                                     <td>{{ question.page }}</td>
                                     <td>{{ question.number }}</td>
-                                    <td>{{ question.count }}</td>
                                     <td><a
                                             href="{% url 'qa_automate:estimated_answer' question.book.title question.page question.theme question.number %}">예상
                                             답변 보러 가기</a></td>

@@ -9,6 +9,7 @@
 
 <body>
   <div class="container">
+    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
     <h1>답변 금지 학생 목록</h1>
     <form method="post">
       {% csrf_token %}
@@ -22,7 +23,6 @@
       <li>{{ element.student }}</li>
       {% endfor %}
     </ul>
-    <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
   </div>
 </body>
 
