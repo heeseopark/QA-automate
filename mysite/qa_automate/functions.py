@@ -335,11 +335,13 @@ def checkFaq():
     
     # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
     if student_name_and_id in BlackList.objects.all():
+        print(f'{question_id} 학생 답변 금지 목록에 있어 제외됨')
         return
 
-    # 키워드 있는지 확인해야함, 우선순위 결정해야하는데 -> prioritiy column 추가했음 (migrate 추가로 할 필요 없음). render 할 때 order_by('priority') 이용하기
+    # 키워드 있는지 확인과정, 밑에 for loop에서 priority 계산
     keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
     keywords_list = keywords_text.strip().split(',')
+
     # Get question text
     question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
 
@@ -449,29 +451,67 @@ def extractquestions():
 def answer():
     goToWaitingPage()
 
-    #answer_count = 1
+
+    # 페이지 내에서 수정한 내용들 다시 extracted and answered questions list에 저장해야함
+
+
     for question in ExtractedAndAnsweredQuestionList.objects.filter(done=False):
         id = question.id
 
 
-        # id send key 보내기
+        select = Select(browser.find_element(By.ID, 'smode'))
+        browser.implicitly_wait(10)
+        select.select_by_visible_text('고유번호')
 
-        #if id에 대한 질문 없음
-            # 해당 id 질문 db에서 지우기
-            #pass
+        browser.find_element(By.ID, 'sword').send_keys(id)
+        browser.implicitly_wait(10)
 
-        # 질문 클릭
+        #이미 답변이 되어서 질문이 없는 경우에 다음 질문 넘어가면서 db 내 질문도 같이 삭제
+        try:
+            wait = WebDriverWait(browser, 1)
+            wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div[2]/table/tbody/tr[1]/td[5]/a'))).click()
+        except TimeoutException:
+            # delete the question object in the db
+            continue
+        
+        #다른 사람이 찜한 경우에 다음 질문 넘어가면서 db 내 질문도 같이 삭제
+        try:
+            wait = WebDriverWait(browser, 1)
+            wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[1]/div/a[1]'))).click()
+        except TimeoutException:
+            # there will be a alert pop up in the page, send keys enter to handle the alert
+            # delete the question object in the db
+            browser.back()
+            continue
 
-        # 찜하기 클릭
+        ## 여기 밑에 있는 코드들은 아직 iframe 위치 고려한 것 아님, 고려해서 마무리하세욥
 
-        # if 다른 사람이 답변 중
-            # 해당 id 질문 지우기
-            #pass
+        answertextarea = browser.find_element(By.ID, 'se2_input_area husky_seditor_editing_area_container')
+        estimatedanswer = question.answer
+
+        answertextarea.send_keys(estimatedanswer)
+
+        #go into iframe
+        wait = WebDriverWait(browser, 2)
+        iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+
+        # Switch to the iframe element
+        browser.switch_to.frame(iframe)
+
+        wait = WebDriverWait(browser, 2)
+        iframe = wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+
+        # Switch to the 2nd iframe element
+        browser.switch_to.frame(iframe)
+
+        answerbutton = browser.find_element(By.XPATH, '/html/body')
+
+        answerbutton
+        
 
         # '저장되었습니다.' alert 처리하기
         # 답변하기
         # 해당 질문 done column True로 바꾸기
-        answer = question.answer
 
         # 답변하기 버튼 누르기
         # '답변되었습니다.' alert 처리하기

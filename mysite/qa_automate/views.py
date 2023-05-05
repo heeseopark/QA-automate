@@ -151,8 +151,7 @@ def extract(request):
         # Handle the case when the form with name `answerquestions` is submitted
         pass
         # html에 남아있는 것들 answered question list로 옮기고, 답변 이미 되어서 질문이 없거나, 다른 사람이 답변 중인 경우 그냥 빈 return 던지기
-        # waiting page에서 id로 1개씩 찾아서 해야할듯 (매번 for loop 돌리는 것보다 빠름)
-        # 지금 false로 되어 있는 것들 다 true로 바꾸기
+
         
     if request.method == 'POST' and 'extractquestions' in request.POST:
         # Handle the case when the form with name `extractquestions` is submitted
