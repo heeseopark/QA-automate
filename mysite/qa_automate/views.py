@@ -164,6 +164,16 @@ def extract(request):
         question = ExtractedAndAnsweredQuestionList.objects.get(id = id)
         question.delete()
 
+    # Handle the case when the form with name `saveallanswers` is submitted
+    if request.method == 'POST' and 'saveallanswers' in request.POST:
+        question_ids = request.POST.getlist('question_ids')
+        for id in question_ids:
+            id = int(id)
+            edited_answer = request.POST.get(f'edited_answer_{id}')
+            question = ExtractedAndAnsweredQuestionList.objects.get(id=id)
+            question.answer = edited_answer
+            question.save()
+
     extracted_questions = ExtractedAndAnsweredQuestionList.objects.filter(done=False).order_by('priority')
 
     ### context 만들기 (python 단에서 queryset들을 만들고 한번에 html에서 render 해야함)

@@ -452,9 +452,6 @@ def answer():
     goToWaitingPage()
 
 
-    # 페이지 내에서 수정한 내용들 다시 extracted and answered questions list에 저장해야함
-
-
     for question in ExtractedAndAnsweredQuestionList.objects.filter(done=False):
         id = question.id
 

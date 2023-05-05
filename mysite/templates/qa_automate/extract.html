@@ -11,6 +11,7 @@
 <body>
     <div class="container">
         <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+        <button type="submit" name="saveallanswers">모든 답변 저장하기</button>
         <form method='POST'>{% csrf_token %}
             <button type="submit" id="search" name='extractquestions'>답변 추출하기</button>
         </form>
@@ -48,7 +49,8 @@
                             </tr>
                             <tr class="answer-container">
                                 <td width="100%" style="padding: 1rem; margin-bottom: 1rem;">
-                                    <textarea>{{ question.answer|linebreaksbr }}</textarea>
+                                    <input type="hidden" name="question_ids" value="{{ question.id }}">
+                                    <textarea name="edited_answer_{{ question.id }}">{{ question.answer|linebreaksbr }}</textarea>
                                 </td>
                             </tr>
                         </table>

@@ -87,7 +87,7 @@ td {
 
 button,
 input[type="submit"] {
-    background: radial-gradient(#4CAF50, #000);
+    background: radial-gradient(#7AD7F0, #B7E9F7);
     color: white;
     border: none;
     cursor: pointer;
@@ -99,7 +99,7 @@ input[type="submit"] {
 
 button:hover,
 input[type="submit"]:hover {
-    background: radial-gradient(#45a049, #000);
+    background: radial-gradient(#7AD7F0, #F5FCFF);
     transform: scale(1.05); /* Increase the scale value to 1.05 */
 }
 
@@ -160,12 +160,14 @@ input[type="text"] {
 }
 
 textarea {
-    width: 100%;
+    width: calc(100% - 2rem); /* Subtract 2rem (32px) from the full width of the container */
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
     font-size: 16px;
-}
+    margin: 0.5rem; /* Add a margin of 0.5rem (8px) around the textarea */
+    box-sizing: border-box; /* Include padding and border in the total width and height */
+    resize: vertical; /* Allow vertical resizing only */
 
 /* Specific styles for your HTML elements */
 .qa-container {
