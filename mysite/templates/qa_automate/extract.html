@@ -28,8 +28,7 @@
                                     <form method="POST">
                                         {% csrf_token %}
                                         <input type="hidden" name="question_id" value="{{ question.id }}">
-                                        <button type="submit" name="deletequestion"
-                                            onclick="deleteQuestion(this)">Delete</button>
+                                        <button type="submit" name="deletequestion">Delete</button>
                                     </form>
                                 </td>
                             </tr>

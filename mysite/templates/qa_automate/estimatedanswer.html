@@ -32,7 +32,7 @@
 		<form method="POST">
 			{% csrf_token %}
 			<label for="keywords">Keywords:</label>
-			<input type="text" name="keywords" id="keywords">
+			<textarea name="keywords" id="keywords" rows="1" cols="50">{{ keywords }}</textarea>
 
 			<textarea name="answer" id="answer" rows="20" cols="50">{{ answer }}</textarea>
 			<button type="submit" value="Save Estimated Answer">예상 답변 저장하기</button>

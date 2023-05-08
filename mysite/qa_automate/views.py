@@ -122,25 +122,28 @@ def estimatedanswer(request, book_title, page, theme, number):
         faq = FaqAndEstimatedAnswer.objects.get(
             book=book_title, page=page, theme=theme, number=number)
         answer = faq.answer
+        keywords = faq.keywords
     except FaqAndEstimatedAnswer.DoesNotExist:
         answer = ''
 
     if request.method == 'POST':
         answer = request.POST['answer']
+        keywords = request.POST['keywords']
         # 키워드 받아서 저장하기
         # Check if there's already an estimated answer for the question
         try:
             faq = FaqAndEstimatedAnswer.objects.get(
                 book=book_title, page=page, theme=theme, number=number)
             faq.answer = answer
+            faq.keywords = keywords
             faq.save()
         except FaqAndEstimatedAnswer.DoesNotExist:
             book = BookList.objects.get(title=book_title)
             faq = FaqAndEstimatedAnswer(
-                book=book, page=page, theme=theme, number=number, answer=answer)
+                book=book, page=page, theme=theme, number=number, answer=answer, keywords = keywords)
             faq.save()
 
-    return render(request, 'qa_automate/estimatedanswer.html', {'question': question, 'answer': answer})
+    return render(request, 'qa_automate/estimatedanswer.html', {'question': question, 'answer': answer, 'keywords': keywords})
 
 
 def test(request):
@@ -149,13 +152,14 @@ def test(request):
 def extract(request):
     if request.method == 'POST' and 'answerquestions' in request.POST:
         # Handle the case when the form with name `answerquestions` is submitted
-        pass
+        return HttpResponseRedirect('/qa_automate/extract/')
         # html에 남아있는 것들 answered question list로 옮기고, 답변 이미 되어서 질문이 없거나, 다른 사람이 답변 중인 경우 그냥 빈 return 던지기
 
         
     if request.method == 'POST' and 'extractquestions' in request.POST:
         # Handle the case when the form with name `extractquestions` is submitted
         extractquestions()
+        return HttpResponseRedirect('/qa_automate/extract/')
     
 
     if request.method == 'POST' and 'deletequestion' in request.POST:
@@ -163,6 +167,7 @@ def extract(request):
         id = int(request.POST.get('question_id'))
         question = ExtractedAndAnsweredQuestionList.objects.get(id = id)
         question.delete()
+        return HttpResponseRedirect('/qa_automate/extract/')
 
     # Handle the case when the form with name `saveallanswers` is submitted
     if request.method == 'POST' and 'saveallanswers' in request.POST:
@@ -173,6 +178,7 @@ def extract(request):
             question = ExtractedAndAnsweredQuestionList.objects.get(id=id)
             question.answer = edited_answer
             question.save()
+        return HttpResponseRedirect('/qa_automate/extract/')
 
     extracted_questions = ExtractedAndAnsweredQuestionList.objects.filter(done=False).order_by('priority')
 
