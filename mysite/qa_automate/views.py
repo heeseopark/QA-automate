@@ -1,9 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
-from .functions import goToWaitingPage, updateSearchedAndFaqTable, goToTotalPage, extractquestions
+from .functions import updateSearchedAndFaqTable, extractquestions, answer
 from datetime import datetime, timedelta
 
 # Create your views here.
@@ -152,6 +150,7 @@ def test(request):
 def extract(request):
     if request.method == 'POST' and 'answerquestions' in request.POST:
         # Handle the case when the form with name `answerquestions` is submitted
+        answer()
         return HttpResponseRedirect('/qa_automate/extract/')
         # html에 남아있는 것들 answered question list로 옮기고, 답변 이미 되어서 질문이 없거나, 다른 사람이 답변 중인 경우 그냥 빈 return 던지기
 
@@ -163,7 +162,6 @@ def extract(request):
     
 
     if request.method == 'POST' and 'deletequestion' in request.POST:
-        print(request)
         id = int(request.POST.get('question_id'))
         question = ExtractedAndAnsweredQuestionList.objects.get(id = id)
         question.delete()
@@ -178,6 +176,7 @@ def extract(request):
             question = ExtractedAndAnsweredQuestionList.objects.get(id=id)
             question.answer = edited_answer
             question.save()
+            print(f'question id {id} is saved')
         return HttpResponseRedirect('/qa_automate/extract/')
 
     extracted_questions = ExtractedAndAnsweredQuestionList.objects.filter(done=False).order_by('priority')

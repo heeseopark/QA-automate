@@ -11,10 +11,11 @@
 <body>
     <div class="container">
         <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
-        <button type="submit" name="saveallanswers">모든 답변 저장하기</button>
-        <form method='POST'>{% csrf_token %}
+        <form method='POST'>
+            {% csrf_token %}
+            <button type="submit" name="saveallanswers">모든 답변 저장하기</button>
             <button type="submit" id="search" name='extractquestions'>답변 추출하기</button>
-        </form>
+        
         <table>
             <thead>
             </thead>
@@ -58,15 +59,10 @@
                 </tr>
             </tbody>
         </table>
+        </form>
         <form method='POST'>{% csrf_token %}
             <button type="submit" id="submit" name='answerquestions'>일괄 답변하기</button>
         </form>
-        <script>
-            function deleteQuestion(button) {
-                const qaContainer = button.closest('.qa-container');
-                qaContainer.parentNode.removeChild(qaContainer);
-            }
-        </script>
     </div>
 </body>
 

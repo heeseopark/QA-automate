@@ -12,7 +12,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
-    
+### basic functions start ###
+
 def goToWaitingPage():
     
     global browser, service, options
@@ -247,6 +248,10 @@ def getThemeNum(text):
             return int(num_str)
     return 0
 
+### basic functions end ###
+
+### search functions start ###
+
 def goingThroughTotalPageForSearch():
 
     current_element_number = 1
@@ -270,99 +275,6 @@ def goingThroughTotalPageForSearch():
             current_element_number += 2
         else:
             current_element_number += 1
-
-def goingThroughWaitingPageForExtract():
-
-    current_element_number = 1
-
-    while True:
-        # Check if the current element is clickable
-        try:
-            wait = WebDriverWait(browser, 1)
-            wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
-        except TimeoutException:
-            break
-
-        # Do something with the current element
-        checkFaq()
-
-        # Go back to waiting page
-        browser.back()
-
-        # Move to the next element
-        current_element_number += 1
-
-def checkFaq():
-    # Get question title text
-    title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
-    global book
-
-    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
-        lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
-        try:
-            book = BookList.objects.get(lecture=lecture_str, type='주교재')
-            # 부교재 확인하기
-            if '워크북' in title or '시냅스' in title:
-                book = BookList.objects.get(lecture=lecture_str, type='부교재')
-        except BookList.DoesNotExist:
-            return
-
-    elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
-        try:
-            book_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[3]/td[1]').text
-            index = book_str.rfind('(') # Find the index of the last '(' in the string
-            if index != -1:
-                book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
-            book = BookList.objects.get(title = book_str)
-
-        except BookList.DoesNotExist:
-            return
-    
-    # Get question_id
-    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
-
-    # Get student name and id 
-    student_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
-
-    # 교재 없는 경우 그냥 빈 return 던지기
-    book_purchase = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text
-    if book_purchase == 'N':
-        return
-    
-    book_purchase_2 = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[4]/a').text
-    if 'N' in book_purchase_2:
-        return    
-    
-    # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
-    if student_name_and_id in BlackList.objects.all():
-        print(f'{question_id} 학생 답변 금지 목록에 있어 제외됨')
-        return
-
-    # 키워드 있는지 확인과정, 밑에 for loop에서 priority 계산
-    keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
-    keywords_list = keywords_text.strip().split(',')
-
-    # Get question text
-    question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
-
-    # Get page, question, and theme numbers
-    page_num = getPageNum(title)
-    question_num = getQuestionNum(title)
-    theme_num = getThemeNum(title)
-
-    faq_and_answer = FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first() # answer가 빈칸인 경우에 빈 return 던지기
-    if faq_and_answer is None:
-        return
-    
-    else:
-        priority = 0
-        for keyword in keywords_list:
-            if keyword in question_text:
-                priority += 1
-        estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
-        question_obj.save()
-
 
 def getAndSaveAtrributes():
    
@@ -443,6 +355,106 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
     browser.quit()
 
+
+### search functions end ###
+
+
+
+### extract and answer functions start ###
+
+
+def goingThroughWaitingPageForExtract():
+
+    current_element_number = 1
+
+    while True:
+        # Check if the current element is clickable
+        try:
+            wait = WebDriverWait(browser, 1)
+            wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
+        except TimeoutException:
+            break
+
+        # Do something with the current element
+        checkFaq()
+
+        # Go back to waiting page
+        browser.back()
+
+        # Move to the next element
+        current_element_number += 1
+
+def checkFaq():
+    # Get question title text
+    title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+    # global book
+
+    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
+        lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
+        try:
+            book = BookList.objects.get(lecture=lecture_str, type='주교재')
+            # 부교재 확인하기
+            if '워크북' in title or '시냅스' in title:
+                book = BookList.objects.get(lecture=lecture_str, type='부교재')
+        except BookList.DoesNotExist:
+            return
+
+    elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
+        try:
+            book_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[3]/td[1]').text
+            index = book_str.rfind('(') # Find the index of the last '(' in the string
+            if index != -1:
+                book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
+            book = BookList.objects.get(title = book_str)
+
+        except BookList.DoesNotExist:
+            return
+    
+    # Get question_id
+    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
+
+    # Get student name and id 
+    student_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
+
+    # 교재 없는 경우 그냥 빈 return 던지기
+    book_purchase = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text
+    if book_purchase == 'N':
+        return
+    
+    book_purchase_2 = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[4]/a').text
+    if 'N' in book_purchase_2:
+        return    
+    
+    # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
+    if student_name_and_id in BlackList.objects.all():
+        print(f'{question_id} 학생 답변 금지 목록에 있어 제외됨')
+        return
+
+    # 키워드 있는지 확인과정, 밑에 for loop에서 priority 계산
+    keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
+    keywords_list = keywords_text.strip().split(',')
+
+    # Get question text
+    question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
+
+    # Get page, question, and theme numbers
+    page_num = getPageNum(title)
+    question_num = getQuestionNum(title)
+    theme_num = getThemeNum(title)
+
+    faq_and_answer = FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first() # answer가 빈칸인 경우에 빈 return 던지기
+    if faq_and_answer is None or faq_and_answer is '':
+        return
+    
+    else:
+        priority = 0
+        for keyword in keywords_list:
+            if keyword in question_text:
+                priority += 1
+        estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
+        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
+        question_obj.save()
+
 def extractquestions():
     goToWaitingPage()
 
@@ -468,7 +480,7 @@ def answer():
             wait = WebDriverWait(browser, 1)
             wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div[2]/table/tbody/tr[1]/td[5]/a'))).click()
         except TimeoutException:
-            # delete the question object in the db
+            question.delete()
             continue
         
         #다른 사람이 찜한 경우에 다음 질문 넘어가면서 db 내 질문도 같이 삭제
@@ -476,17 +488,23 @@ def answer():
             wait = WebDriverWait(browser, 1)
             wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[1]/div/a[1]'))).click()
         except TimeoutException:
-            # there will be a alert pop up in the page, send keys enter to handle the alert
-            # delete the question object in the db
+            try:
+                # Wait for the alert to appear and switch to it
+                WebDriverWait(browser, 1).until(EC.alert_is_present())
+
+                # If the alert is present, accept it
+                alert = browser.switch_to.alert
+                alert.accept()
+
+                # Switch back to the main window
+                browser.switch_to.default_content()
+
+            except TimeoutException:
+                pass
+
+            question.delete()
             browser.back()
             continue
-
-        ## 여기 밑에 있는 코드들은 아직 iframe 위치 고려한 것 아님, 고려해서 마무리하세욥
-
-        answertextarea = browser.find_element(By.ID, 'se2_input_area husky_seditor_editing_area_container')
-        estimatedanswer = question.answer
-
-        answertextarea.send_keys(estimatedanswer)
 
         #go into iframe
         wait = WebDriverWait(browser, 2)
@@ -501,15 +519,31 @@ def answer():
         # Switch to the 2nd iframe element
         browser.switch_to.frame(iframe)
 
-        answerbutton = browser.find_element(By.XPATH, '/html/body')
+        answertextarea = browser.find_element(By.XPATH, '/html/body')
+        estimatedanswer = question.answer
 
-        answerbutton
+        answertextarea.send_keys(estimatedanswer)
+
+        browser.switch_to.default_content()
+
+        browser.switch_to.default_content()
+
+        answerbutton = browser.find_element(By.XPATH, '//*[@id="reg_area"]/a[1]')
+
+        answerbutton.click()
+
+        # Switch to the alert
+        alert = browser.switch_to.alert
+
+        # Accept the alert by pressing ENTER
+        alert.accept()
+
+        # Switch back to the main window
+        browser.switch_to.default_content()
         
+        question.done = True
+        question.save()
 
-        # '저장되었습니다.' alert 처리하기
-        # 답변하기
-        # 해당 질문 done column True로 바꾸기
+### extract and answer functions end ###
 
-        # 답변하기 버튼 누르기
-        # '답변되었습니다.' alert 처리하기
 
