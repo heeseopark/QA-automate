@@ -94,9 +94,6 @@ def qa(request):
     # Initialize ids to an empty queryset
     ids = SearchedQuestionList.objects.none()
 
-    # Initialize qas to an empty list (or whatever default value is appropriate)
-    qas = []
-
     if request.method == 'GET' and 'extractquestions' in request.GET:
         selected_book = request.GET.get('book')
         page_num = request.GET.get('page_num')
@@ -117,11 +114,9 @@ def qa(request):
         
         # Get id list
         ids = ids.values_list('id', flat=True)
-        print(ids)
 
         # Extract the earliest date from the filtered queryset
         start_date = ids.aggregate(Min('date'))['date__min']
-        print(start_date)
 
         qas = getqas(str(start_date), ids)
 
