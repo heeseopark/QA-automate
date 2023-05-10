@@ -13,6 +13,7 @@ urlpatterns = [
     path('extract/', views.extract),
     path('estimated_answer/<str:book_title>/<int:page>/<int:theme>/<int:number>/', views.estimatedanswer, name='estimated_answer'),
     path('searched/<str:book_title>', views.searched, name='searched'),
+    path('getqa/', views.qa, name='qa'),
     
 ]
 

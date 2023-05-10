@@ -168,6 +168,7 @@ textarea {
     margin: 0.5rem; /* Add a margin of 0.5rem (8px) around the textarea */
     box-sizing: border-box; /* Include padding and border in the total width and height */
     resize: vertical; /* Allow vertical resizing only */
+}
 
 /* Specific styles for your HTML elements */
 .qa-container {

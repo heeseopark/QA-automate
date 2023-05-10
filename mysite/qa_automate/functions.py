@@ -355,6 +355,86 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
 
     browser.quit()
 
+def getqas(date, ids):
+    default_text = """
+============================================
+클린 학습 Q&A 게시판 우선 검색하셨나요?
+클린 학습 Q&A 게시판/ 인터넷 검색엔진으로
+얻을 수 있는 질문에는 답변이 제한됩니다.
+같은 질문들이 아주 많다는 점 먼저 참고하신 후 이용해 주세요!
+
+0. 질문 제목글에는 아래 1번 또는 2번 내용을 적어주세요.
+1. (교재명) 교재 페이지, 문항 번호
+2. (강좌명) 강의 시간대
+3. 문의 내용
+4. 문의 내용에 대한 학생이 생각하는 근거
+============================================
+
+1.
+2.
+3.
+4.
+
+
+[참고]
+- 본인의 풀이 방법에 대한 확인 요청일 경우 본인 풀이 과정 반드시 첨부할 것!
+- 문제의 전체 풀이 또는 다른 풀이는 진행해주지 않음(ex. 이 문제 경우의 수로 풀어주세요.)
+- 단순 계산 및 교과서에 포함되지 않은 증명, 그래프 그리기 등은 답변하지 않음(ex. 미적분의 기본원리 증명해 주세요.)
+- 중학 수학 등 이미 학습이 완료되어 있어야 할 부분에 대한 원리, 증명, 공식 등에 대한 설명은 하지 않음 (ex. 이차함수의 축을 어떻게 구하나요?)
+    """
+    goToTotalPage()
+
+    browser.find_element(By.ID, 'searchSdt').clear()
+    browser.find_element(By.ID, 'searchSdt').send_keys(date)
+    browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
+    browser.implicitly_wait(10)
+
+    qalist = []
+    for id in ids:
+        select = Select(browser.find_element(By.ID, 'smode'))
+        browser.implicitly_wait(10)
+        select.select_by_visible_text('고유번호')
+        browser.find_element(By.ID, 'sword').clear()
+        browser.find_element(By.ID, 'sword').send_keys(id)
+        browser.implicitly_wait(10)
+        browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
+        
+        browser.find_element(By.XPATH, '/html/body/div[3]/div[2]/table/tbody/tr[1]/td[5]/a').click()
+
+        question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
+        default_text_lines = default_text.split("\n")
+        question_text_lines = question_text.split("\n")
+
+        # Initialize an empty string for the extracted text
+        extracted_text = ""
+
+        # Iterate over each line in the question text
+        for i in range(len(question_text_lines)):
+            # If the line is not in the default text, add it to the extracted text
+            if question_text_lines[i] not in default_text_lines:
+                if question_text_lines[i] == '============================================':
+                    continue
+                extracted_text += question_text_lines[i] + "\n"
+        
+        # Get answer text
+        try:
+            answer_text = browser.find_element(By.XPATH, '/html/body/div[2]/table/tbody/tr[4]/td').text
+        except NoSuchElementException:
+            answer_text = '답변 없음'
+
+
+        qalist.append((extracted_text, answer_text))
+
+        browser.back()
+
+    return qalist
+
+        
+
+
+
+
+
 
 ### search functions end ###
 
@@ -440,10 +520,11 @@ def checkFaq():
         return
 
     # 키워드 있는지 확인과정, 밑에 for loop에서 priority 계산
-    try: 
+    if FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).exists():
         keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
-    except FaqAndEstimatedAnswer.DoesNotExist:
+    else:
         return
+
     
     keywords_list = str(keywords_text).strip().split(',')
 
@@ -453,7 +534,11 @@ def checkFaq():
     for keyword in keywords_list:
         if keyword in question_text:
             priority += 1
-    estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
+    if priority == 0:
+        return
+    estimated_answer = str(FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer)
+    if estimated_answer == '':
+        return
     question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
     question_obj.save()
 

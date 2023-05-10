@@ -13,8 +13,9 @@
         <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
         <form method='POST'>
             {% csrf_token %}
-            <button type="submit" name="saveallanswers">모든 답변 저장하기</button>
             <button type="submit" id="search" name='extractquestions'>답변 추출하기</button>
+            <button type="submit" name="saveallanswers">모든 답변 저장하기</button>
+            <button type="submit" id="submit" name='answerquestions'>일괄 답변하기</button>
         
         <table>
             <thead>
@@ -50,7 +51,7 @@
                             <tr class="answer-container">
                                 <td width="100%" style="padding: 1rem; margin-bottom: 1rem;">
                                     <input type="hidden" name="question_ids" value="{{ question.id }}">
-                                    <textarea name="edited_answer_{{ question.id }}">{{ question.answer|linebreaksbr }}</textarea>
+                                    <textarea name="edited_answer_{{ question.id }}" cols = "150">{{ question.answer }}</textarea>
                                 </td>
                             </tr>
                         </table>
@@ -59,9 +60,6 @@
                 </tr>
             </tbody>
         </table>
-        </form>
-        <form method='POST'>{% csrf_token %}
-            <button type="submit" id="submit" name='answerquestions'>일괄 답변하기</button>
         </form>
     </div>
 </body>

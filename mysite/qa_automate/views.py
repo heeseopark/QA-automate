@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
-from .functions import updateSearchedAndFaqTable, extractquestions, answer
+from .functions import updateSearchedAndFaqTable, extractquestions, answer, getqas
 from datetime import datetime, timedelta
+from django.db.models import Min
 
 # Create your views here.
 
@@ -86,6 +87,53 @@ def blacklist(request):
         return HttpResponseRedirect('/qa_automate/blacklist/')
     return render(request, 'qa_automate/blacklist.html', {'elements': elements})
 
+def qa(request):
+    # Get distinct book titles from the BookList
+    books = BookList.objects.values_list('title', flat=True).distinct()
+
+    # Initialize ids to an empty queryset
+    ids = SearchedQuestionList.objects.none()
+
+    # Initialize qas to an empty list (or whatever default value is appropriate)
+    qas = []
+
+    if request.method == 'GET' and 'extractquestions' in request.GET:
+        selected_book = request.GET.get('book')
+        page_num = request.GET.get('page_num')
+        theme_num = request.GET.get('theme_num')
+        question_num = request.GET.get('question_num')
+
+        # If book is selected, filter by book title
+        if selected_book:
+            ids = SearchedQuestionList.objects.filter(book__title=selected_book).order_by('id')
+        
+        # Further filter the queryset based on provided page, theme, and question number
+        if page_num:
+            ids = ids.filter(page=page_num)
+        if theme_num:
+            ids = ids.filter(theme=theme_num)
+        if question_num:
+            ids = ids.filter(number=question_num)
+        
+        # Get id list
+        ids = ids.values_list('id', flat=True)
+        print(ids)
+
+        # Extract the earliest date from the filtered queryset
+        start_date = ids.aggregate(Min('date'))['date__min']
+        print(start_date)
+
+        qas = getqas(str(start_date), ids)
+
+
+    context = {
+        'qas' : qas,
+        'books': books,
+    }
+    return render(request, 'qa_automate/qa.html', context)
+
+
+
 
 def faqlist(request):
     books = FaqAndEstimatedAnswer.objects.values_list('book__title', flat=True).distinct()
@@ -93,7 +141,7 @@ def faqlist(request):
         selected_book = request.GET.get('book')
         if selected_book == '':
             unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', count__gt=10).exclude(page=0).order_by('-count')
-            answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='', count__gt=10).order_by('-count')
+            answerable_questions = FaqAndEstimatedAnswer.objects.exclude(answer='', count__gt=10).order_by('-page')
         else:
             unanswerable_questions = FaqAndEstimatedAnswer.objects.filter(answer='', book=selected_book, count__gt=10).exclude(page=0).order_by('-count')
             answerable_questions = FaqAndEstimatedAnswer.objects.filter(book=selected_book, count__gt=10).exclude(answer='').order_by('-count')
@@ -158,6 +206,7 @@ def extract(request):
     if request.method == 'POST' and 'extractquestions' in request.POST:
         # Handle the case when the form with name `extractquestions` is submitted
         extractquestions()
+        
         return HttpResponseRedirect('/qa_automate/extract/')
     
 

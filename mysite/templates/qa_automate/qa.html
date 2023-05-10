@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>질문 조사하기</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+</head>
+
+<body>
+    <div class="container">
+        <button><a href='{% url 'qa_automate:init' %}'>처음 페이지로 이동하기</a></button>
+        <form method="GET">
+            {% csrf_token %}
+            <label for="book">교재:</label>
+            <select id="book" name="book">
+                <option value="" selected disabled hidden>교재를 선택하세요</option>
+                {% for book in books %}
+                <option value="{{ book }}">{{ book }}</option>
+                {% endfor %}
+            </select>
+            <label for="page_num">페이지 번호:</label>
+            <input type="text" name="page_num" id="page_num">
+            <label for="theme_num">테마 번호:</label>
+            <input type="text" name="theme_num" id="theme_num">
+            <label for="question_num">질문 번호:</label>
+            <input type="text" name="question_num" id="question_num">
+            <button type="submit" id="search" name='extractquestions'>질문 답변 추출하기</button>
+        </form>
+        <div>
+            {% for qa in qas %}
+            <p>질문{{ forloop.counter }}:</p>
+            <p>{{ qa.0|linebreaksbr }}</p>
+            <p>답변{{ forloop.counter }}:</p>
+            <p>{{ qa.1|linebreaksbr }}</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
+
