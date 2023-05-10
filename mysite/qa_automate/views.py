@@ -91,6 +91,8 @@ def qa(request):
     # Get distinct book titles from the BookList
     books = BookList.objects.values_list('title', flat=True).distinct()
 
+    qas=[]
+
     # Initialize ids to an empty queryset
     ids = SearchedQuestionList.objects.none()
 
