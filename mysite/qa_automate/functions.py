@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
 
 ### basic functions start ###
 
@@ -368,12 +368,17 @@ def goingThroughWaitingPageForExtract():
     current_element_number = 1
 
     while True:
-        # Check if the current element is clickable
         try:
-            wait = WebDriverWait(browser, 1)
-            wait.until(EC.element_to_be_clickable((By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a'))).click()
-        except TimeoutException:
+            browser.implicitly_wait(10)
+            time.sleep(1)
+            element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
+            if element.is_displayed():
+                element.click()
+        except NoSuchElementException:
             break
+        except ElementClickInterceptedException:
+            current_element_number += 1
+            continue
 
         # Do something with the current element
         checkFaq()
@@ -413,6 +418,10 @@ def checkFaq():
     # Get question_id
     question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
 
+    # Get page, question, and theme numbers
+    page_num = getPageNum(title)
+    question_num = getQuestionNum(title)
+    theme_num = getThemeNum(title)
     # Get student name and id 
     student_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
 
@@ -431,29 +440,22 @@ def checkFaq():
         return
 
     # 키워드 있는지 확인과정, 밑에 for loop에서 priority 계산
-    keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
-    keywords_list = keywords_text.strip().split(',')
-
-    # Get question text
-    question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
-
-    # Get page, question, and theme numbers
-    page_num = getPageNum(title)
-    question_num = getQuestionNum(title)
-    theme_num = getThemeNum(title)
-
-    faq_and_answer = FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).first() # answer가 빈칸인 경우에 빈 return 던지기
-    if faq_and_answer is None or faq_and_answer is '':
+    try: 
+        keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
+    except FaqAndEstimatedAnswer.DoesNotExist:
         return
     
-    else:
-        priority = 0
-        for keyword in keywords_list:
-            if keyword in question_text:
-                priority += 1
-        estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
-        question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
-        question_obj.save()
+    keywords_list = str(keywords_text).strip().split(',')
+
+    # Get question text and calculate priority
+    question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
+    priority = 0
+    for keyword in keywords_list:
+        if keyword in question_text:
+            priority += 1
+    estimated_answer = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer
+    question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
+    question_obj.save()
 
 def extractquestions():
     goToWaitingPage()
