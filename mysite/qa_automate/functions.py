@@ -635,3 +635,61 @@ def answer():
 ### extract and answer functions end ###
 
 
+### functions for writing estimated answer ###
+# gp4 결과 그냥 가져온거이기 때문에 확인해봐야함
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from openai import OpenAI
+
+def cluster_qapairs(qa_pairs):
+
+    # Convert qa_pairs to a list of dictionaries to maintain compatibility with the remaining code
+    qa_pairs = [{"question": pair[0], "answer": pair[1]} for pair in qa_pairs]
+
+    # 1. Extract keywords (simplified using TF-IDF)
+    vectorizer = TfidfVectorizer(max_df=0.5, max_features=10000, min_df=2, stop_words='english', use_idf=True)
+    X = vectorizer.fit_transform([" ".join(pair.values()) for pair in qa_pairs])
+
+    # 2. Cluster Q&A pairs (using K-means)
+    km_model = KMeans(n_clusters=5)
+    km_model.fit(X)
+
+    clusters = km_model.labels_.tolist()
+
+    # 3. Organize Q&A pairs into clusters
+    clustered_qa_pairs = {i: [] for i in range(5)}
+    for i, cluster in enumerate(clusters):
+        clustered_qa_pairs[cluster].append(qa_pairs[i])
+
+    # 4. Generate estimated answers
+    openai = OpenAI("your-api-key")
+    estimated_answers = {}
+
+    for cluster, pairs in clustered_qa_pairs.items():
+        prompt = ""
+        for pair in pairs:
+            prompt += f"Question: {pair['question']}\nAnswer: {pair['answer']}\n"
+
+        response = openai.Completion.create(
+        model="gpt-4.0-turbo",
+        prompt=prompt,
+        temperature=0.5,
+        max_tokens=100
+        )
+
+        estimated_answers[cluster] = response.choices[0].text.strip()
+
+    # 5. Return top 5 classification cases
+    # Assuming 'top' means 'most Q&A pairs'
+    top_clusters = sorted(clustered_qa_pairs.items(), key=lambda x: len(x[1]), reverse=True)[:5]
+    result = []
+
+    for cluster, pairs in top_clusters:
+        print(f"Cluster: {cluster}, Keywords: {vectorizer.get_feature_names()}, Estimated answer: {estimated_answers[cluster]}")
+        # Convert pairs back to the original format and add to the result
+        result.extend([[pair["question"], pair["answer"]] for pair in pairs])
+
+    return result
+
+
