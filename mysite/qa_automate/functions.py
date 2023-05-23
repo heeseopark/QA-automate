@@ -640,7 +640,7 @@ def answer():
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
-from openai import OpenAI
+#from openai import OpenAI
 
 def cluster_qapairs(qa_pairs):
 
