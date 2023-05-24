@@ -519,10 +519,13 @@ def checkFaq():
         print(f'{question_id} 학생 답변 금지 목록에 있어 제외됨')
         return
     
+    keywords_text = ''
+    estimated_answer = ''
 
     # 키워드 있는지 확인과정, 밑에 for loop에서 priority 계산
     if FaqAndEstimatedAnswer.objects.filter(book=book, page=page_num, number=question_num, theme=theme_num).exists():
         keywords_text = FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).keywords
+        estimated_answer = str(FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer)
 
     if page_num == 0 or question_num == 0:
         return
@@ -538,7 +541,7 @@ def checkFaq():
         if keyword in question_text:
             priority += 1
 
-    estimated_answer = str(FaqAndEstimatedAnswer.objects.get(book=book, page=page_num, number=question_num, theme=theme_num).answer)
+    
 
     question_obj = ExtractedAndAnsweredQuestionList(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, answer = estimated_answer, done = False, priority = priority)
     question_obj.save()
