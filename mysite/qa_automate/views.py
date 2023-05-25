@@ -202,6 +202,9 @@ def extract(request):
         
     if request.method == 'POST' and 'extractquestions' in request.POST:
         # Handle the case when the form with name `extractquestions` is submitted
+
+        questions_with_empty_answers = ExtractedAndAnsweredQuestionList.objects.filter(done = False)
+        questions_with_empty_answers.delete()
         extractquestions()
         
         return HttpResponseRedirect('/qa_automate/extract/')
