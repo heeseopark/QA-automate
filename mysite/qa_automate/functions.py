@@ -200,6 +200,23 @@ def paging(function):
                     function()
                     page_number += 1
 
+def paging2(function):
+    i = 1
+    for i in range(10):
+        while True:
+            if browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i + 1}]').text() != '1':
+                break
+        print(f'execute page {i+1}')
+        function()
+
+        while True:
+            break
+
+        break
+    
+    if browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]'):
+        pass
+
 def getPageNum(text):
     patterns = [
         r'\b[pP](?:[gG])?\.?\s?(\d+)\s*',
@@ -639,11 +656,12 @@ def answer():
 
 
 ### functions for writing estimated answer ###
+"""
 # gp4 결과 그냥 가져온거이기 때문에 확인해봐야함
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
-#from openai import OpenAI
+from openai import OpenAI
 
 def cluster_qapairs(qa_pairs):
 
@@ -695,4 +713,4 @@ def cluster_qapairs(qa_pairs):
 
     return result
 
-
+"""
