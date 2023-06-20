@@ -1,5 +1,5 @@
 
-from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
+from .models_v1 import BlackList, BookList, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList, Extractforview
 import time
 from selenium import webdriver
 import re
@@ -486,6 +486,87 @@ def goingThroughWaitingPageForExtract():
         # Move to the next element
         current_element_number += 1
 
+def goingThroughWaitingPageForExtractViews():
+    current_element_number = 1
+    while True:
+        try:
+            browser.implicitly_wait(10)
+            time.sleep(1)
+            element = browser.find_element(By.XPATH, f'/html/body/div[3]/div[2]/table/tbody/tr[{current_element_number}]/td[5]/a')
+            if element.is_displayed():
+                element.click()
+        except NoSuchElementException:
+            break
+        except ElementClickInterceptedException:
+            current_element_number += 1
+            continue
+
+        # Do something with the current element
+        checkquestion()
+
+        # Go back to waiting page
+        browser.back()
+
+        # Move to the next element
+        current_element_number += 1
+
+def checkquestion():
+    # Get question title text
+    title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
+    # global book
+
+    if browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '강좌':
+        lecture_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[1]').text
+        try:
+            book = BookList.objects.get(lecture=lecture_str, type='주교재')
+            # 부교재 확인하기
+            if '워크북' in title or '시냅스' in title:
+                book = BookList.objects.get(lecture=lecture_str, type='부교재')
+        except BookList.DoesNotExist:
+            return
+
+    elif browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/th[1]').text == '교재':
+        try:
+            book_str = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[3]/td[1]').text
+            index = book_str.rfind('(') # Find the index of the last '(' in the string
+            if index != -1:
+                book_str = book_str[:index].rstrip() # Remove the text after the last '(' and any trailing whitespace
+            book = BookList.objects.get(title = book_str)
+
+        except BookList.DoesNotExist:
+            return
+    
+    # Get question_id
+    question_id = int(browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[2]/td[2]').text)
+
+    # Get page, question, and theme numbers
+    page_num = getPageNum(title)
+    question_num = getQuestionNum(title)
+    theme_num = getThemeNum(title)
+    # Get student name and id 
+    student_name_and_id = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[1]/a').text
+
+    # 교재 없는 경우 그냥 빈 return 던지기
+    book_purchase = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[3]').text
+    if book_purchase == 'N':
+        return
+    
+    book_purchase_2 = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[4]/td[4]/a').text
+    if 'N' in book_purchase_2:
+        return    
+    
+    # 학생 이름, id blakclist에 있는 경우에도 그냥 빈 return 던지기 (strip해서 앞 뒤로 빈칸 없게)
+    if student_name_and_id in BlackList.objects.all():
+        print(f'{question_id} 학생 답변 금지 목록에 있어 제외됨')
+        return
+
+    # Get question text and calculate priority
+    question_text = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[5]/td').text
+
+
+    question_obj = Extractforview(id = question_id, book = book, student = student_name_and_id, page = page_num, number = question_num, theme = theme_num, question = question_text, title = title)
+    question_obj.save()
+
 def checkFaq():
     # Get question title text
     title = browser.find_element(By.XPATH, '/html/body/div[1]/table/tbody/tr[1]/td[1]/strong').text
@@ -651,6 +732,11 @@ def answer():
         
         question.done = True
         question.save()
+
+def extractforviewquestions():
+    goToWaitingPage()
+
+    paging(goingThroughWaitingPageForExtractViews)
 
 ### extract and answer functions end ###
 

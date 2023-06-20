@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList
-from .functions import updateSearchedAndFaqTable, extractquestions, answer, getqas
+from .models_v1 import BookList, BlackList, DateCheck, FaqAndEstimatedAnswer, SearchedQuestionList, ExtractedAndAnsweredQuestionList, Extractforview
+from .functions import updateSearchedAndFaqTable, extractquestions, answer, getqas, extractforviewquestions
 from datetime import datetime, timedelta
 from django.db.models import Min
 
@@ -237,4 +237,15 @@ def extract(request):
 
     return render(request, 'qa_automate/extract.html', context)
 
+def extractforview(request):
+    if request.method == 'POST' and 'extractquestions' in request.POST:
+    # Handle the case when the form with name `extractquestions` is submitted
 
+        questions = Extractforview.objects.all()
+        questions.delete()
+        extractforviewquestions()
+    
+        return HttpResponseRedirect('/qa_automate/extract/')
+    questions = Extractforview.objects.all()
+    context = {'questions': questions}
+    return render(request, 'qa_automate/extractforview.html', context)

@@ -45,3 +45,14 @@ class ExtractedAndAnsweredQuestionList(models.Model): #추출한 모든 답변 �
     done = models.BooleanField()
     priority = models.IntegerField(default=0)
     #img = models.ImageField()
+
+class Extractforview(models.Model):
+    id = models.IntegerField(primary_key=True)
+    title = models.TextField(default='')
+    book = models.ForeignKey(BookList, on_delete=models.CASCADE, to_field='title')
+    student = models.CharField(max_length=50)
+    page = models.IntegerField(default=0)
+    number = models.IntegerField(default=0)
+    theme = models.IntegerField(default=0)
+    question = models.TextField()
+    #img = models.ImageField()
