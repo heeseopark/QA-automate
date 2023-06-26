@@ -245,7 +245,13 @@ def extractforview(request):
         questions.delete()
         extractforviewquestions()
     
-        return HttpResponseRedirect('/qa_automate/extract/')
+        return HttpResponseRedirect('/qa_automate/extractforview/')
+    
+    if request.method == 'POST' and 'deletequestion' in request.POST:
+        id = int(request.POST.get('question_id'))
+        question = Extractforview.objects.get(id = id)
+        question.delete()
+        return HttpResponseRedirect('/qa_automate/extractforview/')
     questions = Extractforview.objects.all()
     context = {'questions': questions}
     return render(request, 'qa_automate/extractforview.html', context)
