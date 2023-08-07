@@ -201,21 +201,31 @@ def paging(function):
                     page_number += 1
 
 def paging2(function):
-    i = 1
-    for i in range(10):
-        while True:
-            if browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i + 1}]').text() != '1':
-                break
-        print(f'execute page {i+1}')
-        function()
+    page_number = 1
 
-        while True:
-            break
+    while True:
+        try:
+            print(f'in page {page_number}')
+            function()
 
-        break
-    
-    if browser.find_element(By.XPATH, f'/html/body/div[3]/div[3]/div/a[{i}]'):
-        pass
+            # Check if the next page is available
+            if page_number < 10:
+                next_page_xpath = f'/html/body/div[3]/div[3]/div/a[{page_number + 1}]'
+            else:
+                next_page_xpath = '/html/body/div[3]/div[3]/div/a[11]'
+
+            next_page_button = WebDriverWait(browser, 2).until(
+                EC.element_to_be_clickable((By.XPATH, next_page_xpath))
+            )
+
+            next_page_button.click()
+            browser.implicitly_wait(10)
+            page_number = (page_number % 10) + 1
+
+        except (TimeoutException, NoSuchElementException):
+            return
+
+
 
 def getPageNum(text):
     patterns = [
@@ -368,7 +378,7 @@ def updateSearchedAndFaqTable(start_text, end_text, title_text):
     browser.find_element(By.XPATH, '/html/body/div[2]/form/div[2]/a[1]').click()
     browser.implicitly_wait(10)
     
-    paging(goingThroughTotalPageForSearch)
+    paging2(goingThroughTotalPageForSearch)
 
     browser.quit()
 
