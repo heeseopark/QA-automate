@@ -214,16 +214,24 @@ def paging2(function):
             else:
                 next_page_xpath = '/html/body/div[3]/div[3]/div/a[11]'
 
+            # Fetch the web element corresponding to the XPath
+            next_page_element = browser.find_element_by_xpath(next_page_xpath)
+
+            # Check the text of the element
+            if next_page_element.text() == "11" or next_page_element.text() == "21" or next_page_element.text() == "31":
+                page_number += 1
+    
             next_page_button = WebDriverWait(browser, 2).until(
                 EC.element_to_be_clickable((By.XPATH, next_page_xpath))
             )
-
             next_page_button.click()
             browser.implicitly_wait(10)
             page_number = (page_number % 10) + 1
 
         except (TimeoutException, NoSuchElementException):
             return
+
+
 
 
 
